@@ -1,0 +1,6 @@
+**该目录下的python文件是系统API接口**
+
+####运行方式：
+    + 首先要安装python环境，这里用的是python3.6
+    
+    + 直接执行命令： python APItest.py
