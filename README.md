@@ -1,4 +1,7 @@
-#shares chain 项目中主要概念说明
+# SHARESCHAIN BLOCKCHAIN 1.0
+
+
+# 项目中主要概念说明
 1. 项目名称：shareschain
 2. 主链名称：mainchain
 3. 子链名称：subchain
