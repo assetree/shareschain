@@ -25,7 +25,7 @@ final class GetNextBlockIds {
         /**
          * 从本地数据库中按顺序获取区块ID列表，blockId:从那个ID开始，limit：一次获取个数
          */
-        List<Long> ids = Shareschain.getBlockchain().getBlockIdsAfter(blockId, limit > 0 ? limit : 1440);
-        return new NetworkMessage.BlockIdsMessage(request.getMessageId(), ids);
+        List<Long> idList = Shareschain.getBlockchain().getBlockIdsAfter(blockId, limit > 0 ? limit : 1440);
+        return new NetworkMessage.BlockIdsMessage(request.getMessageId(), idList);
     }
 }

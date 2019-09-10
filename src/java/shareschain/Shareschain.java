@@ -184,13 +184,13 @@ public final class Shareschain {
     // 打印命令行参数
     private static void printCommandLineArguments() {
         try {
-            List<String> inputArguments = ManagementFactory.getRuntimeMXBean().getInputArguments();
-            if (inputArguments != null && inputArguments.size() > 0) {
+            List<String> inputArgumentList = ManagementFactory.getRuntimeMXBean().getInputArguments();
+            if (inputArgumentList != null && inputArgumentList.size() > 0) {
                 System.out.println("Command line arguments");
             } else {
                 return;
             }
-            inputArguments.forEach(System.out::println);
+            inputArgumentList.forEach(System.out::println);
         } catch (AccessControlException e) {
             System.out.println("Cannot read input arguments " + e.getMessage());
         }
@@ -249,14 +249,14 @@ public final class Shareschain {
         if (value == null || value.length() == 0) {
             return Collections.emptyList();
         }
-        List<String> result = new ArrayList<>();
+        List<String> resultList = new ArrayList<>();
         for (String s : value.split(";")) {
             s = s.trim();
             if (s.length() > 0) {
-                result.add(s);
+                resultList.add(s);
             }
         }
-        return result;
+        return resultList;
     }
 
     public static boolean getBooleanProperty(String name) {

@@ -38,15 +38,15 @@ public final class APIServlet extends HttpServlet {
 
     public abstract static class APIRequestHandler {
 
-        private final List<String> parameters;
+        private final List<String> parameterList;
         private final String fileParameter;
-        private final Set<APITag> apiTags;
+        private final Set<APITag> apiTagSet;
 
-        protected APIRequestHandler(APITag[] apiTags, String... parameters) {
-            this(null, apiTags, parameters);
+        protected APIRequestHandler(APITag[] apiTagSet, String... parameters) {
+            this(null, apiTagSet, parameters);
         }
 
-        protected APIRequestHandler(String fileParameter, APITag[] apiTags, String... origParameters) {
+        protected APIRequestHandler(String fileParameter, APITag[] apiTagSet, String... origParameters) {
             List<String> parameters = new ArrayList<>();
             if (isChainSpecific()) {
                 parameters.add("chain");
@@ -59,17 +59,17 @@ public final class APIServlet extends HttpServlet {
                 parameters.add("requireBlock");
                 parameters.add("requireLastBlock");
             }
-            this.parameters = Collections.unmodifiableList(parameters);
-            this.apiTags = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(apiTags)));
+            this.parameterList = Collections.unmodifiableList(parameters);
+            this.apiTagSet = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(apiTagSet)));
             this.fileParameter = fileParameter;
         }
 
-        public final List<String> getParameters() {
-            return parameters;
+        public final List<String> getParameterList() {
+            return parameterList;
         }
 
         public final Set<APITag> getAPITags() {
-            return apiTags;
+            return apiTagSet;
         }
 
         public final String getFileParameter() {

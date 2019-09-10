@@ -214,7 +214,7 @@ public class APITestServlet extends HttpServlet {
 
     private static String form(HttpServletRequest req, String requestType, boolean singleView, APIServlet.APIRequestHandler requestHandler) {
         String className = requestHandler.getClass().getName();
-        List<String> parameters = requestHandler.getParameters();
+        List<String> parameters = requestHandler.getParameterList();
         boolean requirePost = requestHandler.requirePost();
         String fileParameter = requestHandler.getFileParameter();
         StringBuilder buf = new StringBuilder();

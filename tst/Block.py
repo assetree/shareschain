@@ -8,12 +8,14 @@ def getBlockchainStatus():
     url = 'http://'+ip+':8888/shareschain?requestType=getBlockchainStatus'
     data = {}
     obj = req.post(url, data)
+    print obj
     return obj
 
 def getBlock():
     url = 'http://'+ip+':8888/shareschain?requestType=getBlock'
     data = {}
     obj = req.post(url, data)
+    print obj
     return obj
 
 if __name__ == '__main__':
