@@ -398,7 +398,7 @@ public final class BlockImpl implements Block {
 
         } catch (RuntimeException e) {
 
-            Logger.logMessage("Error verifying block generation signature", e);
+            Logger.logMessageWithExcpt("Error verifying block generation signature", e);
             return false;
 
         }

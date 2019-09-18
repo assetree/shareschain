@@ -200,7 +200,7 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
                     }
                 }
             } catch (Exception e) {
-                Logger.logMessage("Error removing unconfirmed transactions", e);
+                Logger.logMessageWithExcpt("Error removing unconfirmed transactions", e);
             }
         } catch (Throwable t) {
             Logger.logErrorMessage("CRITICAL ERROR. PLEASE REPORT TO THE DEVELOPERS.\n" + t.toString());
@@ -238,7 +238,7 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
                 }
 
             } catch (Exception e) {
-                Logger.logMessage("Error in transaction re-broadcasting thread", e);
+                Logger.logMessageWithExcpt("Error in transaction re-broadcasting thread", e);
             }
         } catch (Throwable t) {
             Logger.logErrorMessage("CRITICAL ERROR. PLEASE REPORT TO THE DEVELOPERS.\n" + t.toString());
@@ -257,7 +257,7 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
                 }
                 processWaitingTransactions();
             } catch (Exception e) {
-                Logger.logMessage("Error processing waiting transactions", e);
+                Logger.logMessageWithExcpt("Error processing waiting transactions", e);
             }
         } catch (Throwable t) {
             Logger.logErrorMessage("CRITICAL ERROR. PLEASE REPORT TO THE DEVELOPERS.\n" + t.toString());
@@ -393,7 +393,7 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
         BlockchainImpl.getInstance().writeLock();
         try {
             if (transaction.getChain().getTransactionHome().hasTransaction(transaction)) {//该交易是否在链的表中已经存在
-                Logger.logMessage("Transaction " + transaction.getStringId() + " already in blockchain, will not broadcast again");
+                Logger.logMessageWithExcpt("Transaction " + transaction.getStringId() + " already in blockchain, will not broadcast again");
                 return;
             }
             //通过交易id在交易缓存池中获取交易,如果缓存中没有该交易就从 PUBLIC.UNCONFIRMED_TRANSACTION 表中根据id获取
@@ -403,9 +403,9 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
                 //如果已经启用交易广播，在配置文件中配置,将该交易添加到广播交易的set集合中
                 if (enableTransactionRebroadcasting) {
                     broadcastedTransactions.add((TransactionImpl) transaction);
-                    Logger.logMessage("Transaction " + transaction.getStringId() + " already in unconfirmed pool, will re-broadcast");
+                    Logger.logMessageWithExcpt("Transaction " + transaction.getStringId() + " already in unconfirmed pool, will re-broadcast");
                 } else {
-                    Logger.logMessage("Transaction " + transaction.getStringId() + " already in unconfirmed pool, will not broadcast again");
+                    Logger.logMessageWithExcpt("Transaction " + transaction.getStringId() + " already in unconfirmed pool, will not broadcast again");
                 }
                 return;
             }

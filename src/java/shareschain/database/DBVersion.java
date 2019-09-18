@@ -50,9 +50,9 @@ public abstract class DBVersion {
                     throw new RuntimeException("Invalid version table");
                 }
                 rs.close();
-                Logger.logMessage("Database update may take a while if needed, current database version " + (nextUpdate - 1) + "...");
+                Logger.logMessageWithExcpt("Database update may take a while if needed, current database version " + (nextUpdate - 1) + "...");
             } catch (SQLException e) {
-                Logger.logMessage("Initializing an empty database");
+                Logger.logMessageWithExcpt("Initializing an empty database");
                 stmt.executeUpdate("CREATE TABLE version (next_update INT NOT NULL)");
                 stmt.executeUpdate("INSERT INTO version VALUES (1)");
                 con.commit();

@@ -46,7 +46,7 @@ public final class ThreadPool {
         if (! Shareschain.getBooleanProperty("shareschain.disable" + name + "Thread")) {
             backgroundJobs.put(runnable, timeUnit.toMillis(delay));
         } else {
-            Logger.logMessage("Will not run " + name + " thread");
+            Logger.logMessageWithExcpt("Will not run " + name + " thread");
         }
     }
 

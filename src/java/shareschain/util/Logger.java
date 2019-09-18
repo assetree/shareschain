@@ -171,7 +171,7 @@ public final class Logger {
      *
      * @param       message             Message
      */
-    public static void logMessage(String message) {
+    public static void logMessageWithExcpt(String message) {
         doLog(Level.INFO, message, null);
     }
 
@@ -181,13 +181,13 @@ public final class Logger {
      * @param       message             Message
      * @param       exc                 Exception
      */
-    public static void logMessage(String message, Exception exc) {
+    public static void logMessageWithExcpt(String message, Exception exc) {
         doLog(Level.ERROR, message, exc);
     }
 
     public static void logShutdownMessage(String message) {
         if (LogManager.getLogManager() instanceof ShareschainLogManager) {
-            logMessage(message);
+            logMessageWithExcpt(message);
         } else {
             System.out.println(message);
         }
@@ -195,7 +195,7 @@ public final class Logger {
 
     public static void logShutdownMessage(String message, Exception e) {
         if (LogManager.getLogManager() instanceof ShareschainLogManager) {
-            logMessage(message, e);
+            logMessageWithExcpt(message, e);
         } else {
             System.out.println(message);
             System.out.println(e.toString());

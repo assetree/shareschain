@@ -204,10 +204,10 @@ public final class Shareschain {
     public static int getIntProperty(String name, int defaultValue) {
         try {
             int result = Integer.parseInt(properties.getProperty(name));
-            Logger.logMessage(name + " = \"" + result + "\"");
+            Logger.logMessageWithExcpt(name + " = \"" + result + "\"");
             return result;
         } catch (NumberFormatException e) {
-            Logger.logMessage(name + " not defined or not numeric, using default value " + defaultValue);
+            Logger.logMessageWithExcpt(name + " not defined or not numeric, using default value " + defaultValue);
             return defaultValue;
         }
     }
@@ -228,9 +228,9 @@ public final class Shareschain {
     public static String getStringProperty(String name, String defaultValue, boolean doNotLog, String encoding) {
         String value = properties.getProperty(name);
         if (value != null && ! "".equals(value)) {
-            Logger.logMessage(name + " = \"" + (doNotLog ? "{not logged}" : value) + "\"");
+            Logger.logMessageWithExcpt(name + " = \"" + (doNotLog ? "{not logged}" : value) + "\"");
         } else {
-            Logger.logMessage(name + " not defined");
+            Logger.logMessageWithExcpt(name + " not defined");
             value = defaultValue;
         }
         if (encoding == null || value == null) {
@@ -266,13 +266,13 @@ public final class Shareschain {
     public static boolean getBooleanProperty(String name, boolean defaultValue) {
         String value = properties.getProperty(name);
         if (Boolean.TRUE.toString().equals(value)) {
-            Logger.logMessage(name + " = \"true\"");
+            Logger.logMessageWithExcpt(name + " = \"true\"");
             return true;
         } else if (Boolean.FALSE.toString().equals(value)) {
-            Logger.logMessage(name + " = \"false\"");
+            Logger.logMessageWithExcpt(name + " = \"false\"");
             return false;
         }
-        Logger.logMessage(name + " not defined, using default " + defaultValue);
+        Logger.logMessageWithExcpt(name + " not defined, using default " + defaultValue);
         return defaultValue;
     }
 
@@ -419,7 +419,7 @@ public final class Shareschain {
                 ThreadPool.start(timeMultiplier);
                 if (timeMultiplier > 1) {
                     setTime(new Time.FasterTime(Math.max(getEpochTime(), Shareschain.getBlockchain().getLastBlock().getTimestamp()), timeMultiplier));
-                    Logger.logMessage("TIME WILL FLOW " + timeMultiplier + " TIMES FASTER!");
+                    Logger.logMessageWithExcpt("TIME WILL FLOW " + timeMultiplier + " TIMES FASTER!");
                 }
                 //阻塞线程，等待子线程处理完成。
                 try {
@@ -428,13 +428,13 @@ public final class Shareschain {
                 testSecureRandom();
 
                 long currentTime = System.currentTimeMillis();
-                Logger.logMessage("Initialization took " + (currentTime - startTime) / 1000 + " seconds");
+                Logger.logMessageWithExcpt("Initialization took " + (currentTime - startTime) / 1000 + " seconds");
                 setServerStatus(ServerStatus.STARTED, API.getWelcomePageUri());
                 if (isDesktopApplicationEnabled()) {
                     launchDesktopApplication();
                 }
                 if (Constants.isTestnet) {
-                    Logger.logMessage("RUNNING ON TESTNET - DO NOT USE REAL ACCOUNTS!");
+                    Logger.logMessageWithExcpt("RUNNING ON TESTNET - DO NOT USE REAL ACCOUNTS!");
                 }
             } catch (Exception e) {
                 Logger.logErrorMessage(e.getMessage(), e);

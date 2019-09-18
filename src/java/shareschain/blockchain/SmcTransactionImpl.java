@@ -149,7 +149,7 @@ public class SmcTransactionImpl extends TransactionImpl implements SmcTransactio
             //检查交易账号是否存在，账号是否属于[账户控制]类型
         } catch (ShareschainException.NotValidException e) {
             if (getSignature() != null) {
-                Logger.logMessage("Invalid transaction " + getStringId());
+                Logger.logMessageWithExcpt("Invalid transaction " + getStringId());
             }
             throw e;
         }

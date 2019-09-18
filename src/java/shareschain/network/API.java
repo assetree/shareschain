@@ -177,7 +177,7 @@ public final class API {
                 connector.setIdleTimeout(apiServerIdleTimeout);
                 connector.setReuseAddress(true);
                 apiServer.addConnector(connector);
-                Logger.logMessage("API server using HTTP port " + port);
+                Logger.logMessageWithExcpt("API server using HTTP port " + port);
             }
             //
             // Create the HTTPS connector
@@ -211,7 +211,7 @@ public final class API {
                 connector.setIdleTimeout(apiServerIdleTimeout);
                 connector.setReuseAddress(true);
                 apiServer.addConnector(connector);
-                Logger.logMessage("API server using HTTPS port " + sslPort);
+                Logger.logMessageWithExcpt("API server using HTTPS port " + sslPort);
             } else {
                 sslContextFactory = null;
             }
@@ -318,7 +318,7 @@ public final class API {
                         Logger.logDebugMessage("API SSL Protocols: " + Arrays.toString(sslContextFactory.getSelectedProtocols()));
                         Logger.logDebugMessage("API SSL Ciphers: " + Arrays.toString(sslContextFactory.getSelectedCipherSuites()));
                     }
-                    Logger.logMessage("Started API server at " + host + ":" + port + (enableSSL && port != sslPort ? ", " + host + ":" + sslPort : ""));
+                    Logger.logMessageWithExcpt("Started API server at " + host + ":" + port + (enableSSL && port != sslPort ? ", " + host + ":" + sslPort : ""));
                 } catch (Exception e) {
                     Logger.logErrorMessage("Failed to start API server", e);
                     throw new RuntimeException(e.toString(), e);
@@ -332,7 +332,7 @@ public final class API {
             openAPIPort = 0;
             openAPISSLPort = 0;
             isOpenAPI = false;
-            Logger.logMessage("API server not enabled");
+            Logger.logMessageWithExcpt("API server not enabled");
         }
 
     }
@@ -445,7 +445,7 @@ public final class API {
             }
         } catch (UnknownHostException e) {
             // can't resolve, disallow
-            Logger.logMessage("Unknown remote host " + remoteHost);
+            Logger.logMessageWithExcpt("Unknown remote host " + remoteHost);
         }
         return false;
 

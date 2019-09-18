@@ -710,7 +710,7 @@ public final class Account {
 
     private Account(long id) {
         if (id != Crypto.rsDecode(Crypto.rsEncode(id))) {
-            Logger.logMessage("CRITICAL ERROR: Reed-Solomon encoding fails for " + id);
+            Logger.logMessageWithExcpt("CRITICAL ERROR: Reed-Solomon encoding fails for " + id);
         }
         this.id = id;
         this.dbKey = accountDBKeyFactory.newKey(this.id);

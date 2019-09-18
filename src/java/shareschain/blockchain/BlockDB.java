@@ -288,7 +288,7 @@ public final class BlockDB {
             }
             return;
         }
-        Logger.logMessage("Deleting blockchain...");
+        Logger.logMessageWithExcpt("Deleting blockchain...");
         try (Connection con = getConnection();
              Statement stmt = con.createStatement()) {
             try {

@@ -19,7 +19,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
-import java.util.Locale;
 
 /**
  * 密码类
@@ -49,7 +48,7 @@ public final class Crypto {
         try {
             return MessageDigest.getInstance(algorithm);
         } catch (NoSuchAlgorithmException e) {
-            Logger.logMessage("Missing message digest algorithm: " + algorithm);
+            Logger.logMessageWithExcpt("Missing message digest algorithm: " + algorithm);
             throw new RuntimeException(e.getMessage(), e);
         }
     }
@@ -222,7 +221,7 @@ public final class Crypto {
             Curve25519.curve(sharedSecret, myPrivateKey, theirPublicKey);
             return sharedSecret;
         } catch (RuntimeException e) {
-            Logger.logMessage("Error getting shared secret", e);
+            Logger.logMessageWithExcpt("Error getting shared secret", e);
             throw e;
         }
     }

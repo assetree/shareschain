@@ -140,7 +140,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                     downloadNode();
                     if (blockchain.getHeight() == chainHeight) {
                         if (isDownloading && !simulateEndlessDownload) {
-                            Logger.logMessage("Finished blockchain download");
+                            Logger.logMessageWithExcpt("Finished blockchain download");
                             isDownloading = false;
                         }
                         break;
@@ -258,7 +258,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                      *里程碑区块与最终区块高度之差大于10 ，说明需要同步的区块大于10个，设置当前节点为正在下载区块状态
                      */
                     if (!isDownloading && lastBlockchainFeederHeight - commonBlock.getHeight() > 10) {
-                        Logger.logMessage("Blockchain download in progress");
+                        Logger.logMessageWithExcpt("Blockchain download in progress");
                         isDownloading = true;
                     }
 
@@ -319,7 +319,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                         totalTime += time;
                         int numBlocks = blockchain.getHeight() - commonBlock.getHeight();
                         totalBlocks += numBlocks;
-                        Logger.logMessage("Downloaded " + numBlocks + " blocks in "
+                        Logger.logMessageWithExcpt("Downloaded " + numBlocks + " blocks in "
                                 + time / 1000 + " s, " + (totalBlocks * 1000) / totalTime + " per s, "
                                 + totalTime * (lastBlockchainFeederHeight - blockchain.getHeight()) / ((long) totalBlocks * 1000 * 60) + " min left");
                     } else {
@@ -330,10 +330,10 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 }
 
             } catch (ShareschainException.StopException e) {
-                Logger.logMessage("Blockchain download stopped: " + e.getMessage());
+                Logger.logMessageWithExcpt("Blockchain download stopped: " + e.getMessage());
                 throw new InterruptedException("Blockchain download stopped");
             } catch (Exception e) {
-                Logger.logMessage("Error in blockchain download thread", e);
+                Logger.logMessageWithExcpt("Error in blockchain download thread", e);
             }
         }
 
@@ -969,7 +969,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         }
         byte[] checksum = digest.digest();
         if (validChecksum.length == 0) {
-            Logger.logMessage("Checksum calculated:\n" + Arrays.toString(checksum));
+            Logger.logMessageWithExcpt("Checksum calculated:\n" + Arrays.toString(checksum));
         } else if (!Arrays.equals(checksum, validChecksum)) {
             Logger.logErrorMessage("Checksum failed at block " + height + ": " + Arrays.toString(checksum));
             if (isScanning) {
@@ -978,7 +978,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 popOffTo(fromHeight);
             }
         } else {
-            Logger.logMessage("Checksum passed at block " + height);
+            Logger.logMessageWithExcpt("Checksum passed at block " + height);
         }
     };
 
@@ -987,7 +987,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         //添加区块扫描事件
         blockListeners.addListener(block -> {
             if (block.getHeight() % 5000 == 0) {
-                Logger.logMessage("processed block " + block.getHeight());
+                Logger.logMessageWithExcpt("processed block " + block.getHeight());
             }
             if (trimDerivedTables && block.getHeight() % trimFrequency == 0) {
                 doTrimDerivedTables();
@@ -1004,7 +1004,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 });
             }
             if (block.getHeight() % 5000 == 0) {
-                Logger.logMessage("received block " + block.getHeight());
+                Logger.logMessageWithExcpt("received block " + block.getHeight());
                 if (!isDownloading || block.getHeight() % 50000 == 0) {
                     networkService.submit(DB.db::analyzeTables);
                 }
@@ -1080,7 +1080,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             doTrimDerivedTables();
             DB.db.commitTransaction();
         } catch (Exception e) {
-            Logger.logMessage(e.toString(), e);
+            Logger.logMessageWithExcpt(e.toString(), e);
             DB.db.rollbackTransaction();
             throw e;
         } finally {
@@ -1279,19 +1279,19 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
          */
         BlockImpl lastBlock = BlockDB.findLastBlock();
         if (lastBlock != null) {
-            Logger.logMessage("Genesis block already in database");
+            Logger.logMessageWithExcpt("Genesis block already in database");
             blockchain.setLastBlock(lastBlock);
 
             popOffTo(lastBlock);
 
             genesisBlockId = BlockDB.findBlockIdAtHeight(0);
-            Logger.logMessage("Last block height: " + lastBlock.getHeight());
+            Logger.logMessageWithExcpt("Last block height: " + lastBlock.getHeight());
             return;
         }
         /*
          * 数据库中未查询到数据，根据json文件生成新的创世区块
          */
-        Logger.logMessage("Genesis block not in database, starting from scratch");
+        Logger.logMessageWithExcpt("Genesis block not in database, starting from scratch");
         BlockImpl genesisBlock = new BlockImpl(Genesis.generationSignature);
         genesisBlockId = genesisBlock.getId();
         //如果是轻客户端
@@ -1329,7 +1329,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             DB.db.commitTransaction();
         } catch (SQLException e) {
             DB.db.rollbackTransaction();
-            Logger.logMessage(e.getMessage());
+            Logger.logMessageWithExcpt(e.getMessage());
             throw new RuntimeException(e.toString(), e);
         } finally {
             DB.db.endTransaction();
@@ -1646,7 +1646,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                  * 如果当前区块高度，小于最小回滚高度,设置节点重新扫描，并且回滚数据库中区块
                  */
                 if (commonBlock.getHeight() < getMinRollbackHeight()) {
-                    Logger.logMessage("Rollback to height " + commonBlock.getHeight() + " not supported, will do a full rescan");
+                    Logger.logMessageWithExcpt("Rollback to height " + commonBlock.getHeight() + " not supported, will do a full rescan");
                     try {
                         //设置当前节点从创世节点重新扫描，并且不做交易验证
                         scheduleScan(0, false);
@@ -1928,13 +1928,13 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             scheduleScan(height, validate);
 
             if (height > 0 && height < getMinRollbackHeight()) {
-                Logger.logMessage("Rollback to height less than " + getMinRollbackHeight() + " not supported, will do a full scan");
+                Logger.logMessageWithExcpt("Rollback to height less than " + getMinRollbackHeight() + " not supported, will do a full scan");
                 height = 0;
             }
             if (height < 0) {
                 height = 0;
             }
-            Logger.logMessage("Scanning blockchain starting from height " + height + "...");
+            Logger.logMessageWithExcpt("Scanning blockchain starting from height " + height + "...");
             if (validate) {
                 Logger.logDebugMessage("Also verifying signatures and validating transactions...");
             }
@@ -1946,7 +1946,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 initialScanHeight = blockchain.getHeight();
                 //如果回滚高度，大于当前区块链节点高度，无需回滚，直接返回
                 if (height > blockchain.getHeight() + 1) {
-                    Logger.logMessage("Rollback height " + (height - 1) + " exceeds current blockchain height of " + blockchain.getHeight() + ", no scan needed");
+                    Logger.logMessageWithExcpt("Rollback height " + (height - 1) + " exceeds current blockchain height of " + blockchain.getHeight() + ", no scan needed");
                     pstmtDone.executeUpdate();
                     DB.db.commitTransaction();
                     return;
@@ -1983,7 +1983,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                  * ?
                  */
                 if (shutdown) {
-                    Logger.logMessage("Scan will be performed at next start");
+                    Logger.logMessageWithExcpt("Scan will be performed at next start");
                     new Thread(() -> System.exit(0)).start();
                     return;
                 }
@@ -2086,9 +2086,9 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 pstmtDone.executeUpdate();
                 DB.db.commitTransaction();
                 blockListeners.notify(currentBlock, Event.RESCAN_END);
-                Logger.logMessage("...done at height " + blockchain.getHeight());
+                Logger.logMessageWithExcpt("...done at height " + blockchain.getHeight());
                 if (height == 0 && validate) {
-                    Logger.logMessage("SUCCESSFULLY PERFORMED FULL RESCAN WITH VALIDATION");
+                    Logger.logMessageWithExcpt("SUCCESSFULLY PERFORMED FULL RESCAN WITH VALIDATION");
                 }
                 lastRestoreTime = 0;
             } catch (SQLException e) {

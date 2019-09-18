@@ -160,7 +160,7 @@ public final class Generator implements Comparable<Generator> {
                         BlockchainImpl.getInstance().updateUnlock();
                     }
                 } catch (Exception e) {
-                    Logger.logMessage("Error in block generation thread", e);
+                    Logger.logMessageWithExcpt("Error in block generation thread", e);
                 }
             } catch (Throwable t) {
                 Logger.logErrorMessage("CRITICAL ERROR. PLEASE REPORT TO THE DEVELOPERS.\n" + t.toString());
