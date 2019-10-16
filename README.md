@@ -6,9 +6,9 @@
 2. 主链名称：mainchain
 3. 子链名称：subchain
 4. 主链名称缩写：SMC(shareschain main chain)
-5. Token名称：SCTK
+5. Token名称：SCK
 6. Token基本单位：KER（Carat 克、克拉）
-7. 单位换算：1SCTK = 100000000个KER
+7. 单位换算：1SCK = 100000000个KER
 
 
 ## Get started
