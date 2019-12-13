@@ -35,7 +35,7 @@ public final class Constants {
     }
     public static final String customLoginWarning = Shareschain.getStringProperty("shareschain.customLoginWarning", null, false, "UTF-8");
 
-    public static final long MAX_BALANCE_SCTK = 1000000000;
+    public static final long MAX_BALANCE_SCTK = 2000000000;
     //1个SCTK等于100000000KER (KER是克拉的意思)
     public static final long KER_PER_SCTK = 100000000;
     public static final long MAX_BALANCE_KER = MAX_BALANCE_SCTK * KER_PER_SCTK;
