@@ -1,11 +1,10 @@
 
 package shareschain.blockchain;
 
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.database.Table;
 import shareschain.database.DB;
 import shareschain.util.Convert;
-import shareschain.util.Logger;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -44,7 +43,7 @@ public final class TransactionHome {
             }
         } catch (SQLException e) {
             throw new RuntimeException(e.toString(), e);
-        } catch (ShareschainException.ValidationException e) {
+        } catch (ShareschainExceptions.ValidationExceptions e) {
             throw new RuntimeException("Transaction already in database, id = " + transactionId + ", does not pass validation!", e);
         }
     }
@@ -68,7 +67,7 @@ public final class TransactionHome {
             }
         } catch (SQLException e) {
             throw new RuntimeException(e.toString(), e);
-        } catch (ShareschainException.ValidationException e) {
+        } catch (ShareschainExceptions.ValidationExceptions e) {
             throw new RuntimeException("Transaction already in database, full_hash = " + Convert.toHexString(fullHash)
                     + ", does not pass validation!", e);
         }
@@ -185,7 +184,7 @@ public final class TransactionHome {
             }
         } catch (SQLException e) {
             throw new RuntimeException(e.toString(), e);
-        } catch (ShareschainException.ValidationException e) {
+        } catch (ShareschainExceptions.ValidationExceptions e) {
             throw new RuntimeException("Transaction already in database for block_id = " + Long.toUnsignedString(blockId)
                     + " does not pass validation!", e);
         }

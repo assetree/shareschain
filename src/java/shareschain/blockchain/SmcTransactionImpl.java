@@ -3,7 +3,7 @@ package shareschain.blockchain;
 
 import shareschain.Constants;
 import shareschain.Shareschain;
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.account.Account;
 import shareschain.util.crypto.Crypto;
 import shareschain.database.DBUtils;
@@ -36,13 +36,13 @@ public class SmcTransactionImpl extends TransactionImpl implements SmcTransactio
         }
 
         @Override
-        public SmcTransactionImpl build(String secretPhrase) throws ShareschainException.NotValidException {
+        public SmcTransactionImpl build(String secretPhrase) throws ShareschainExceptions.NotValidExceptions {
             preBuild(secretPhrase);
             return new SmcTransactionImpl(this, secretPhrase);
         }
 
         @Override
-        public SmcTransactionImpl build() throws ShareschainException.NotValidException {
+        public SmcTransactionImpl build() throws ShareschainExceptions.NotValidExceptions {
             return build(null);
         }
 
@@ -56,9 +56,9 @@ public class SmcTransactionImpl extends TransactionImpl implements SmcTransactio
      * 通过密码对交易进行加密sha256签名
      * @param builder
      * @param secretPhrase
-     * @throws ShareschainException.NotValidException
+     * @throws ShareschainExceptions.NotValidExceptions
      */
-    SmcTransactionImpl(BuilderImpl builder, String secretPhrase) throws ShareschainException.NotValidException {
+    SmcTransactionImpl(BuilderImpl builder, String secretPhrase) throws ShareschainExceptions.NotValidExceptions {
         super(builder);
         if (builder.fee <= 0 || (Constants.correctInvalidFees && builder.signature == null)) {
             int effectiveHeight = (getHeight() < Integer.MAX_VALUE ? getHeight() : Shareschain.getBlockchain().getHeight());
@@ -68,14 +68,14 @@ public class SmcTransactionImpl extends TransactionImpl implements SmcTransactio
             this.feeKER = builder.fee;
         }
         if (builder.signature != null && secretPhrase != null) {
-            throw new ShareschainException.NotValidException("Transaction is already signed");
+            throw new ShareschainExceptions.NotValidExceptions("Transaction is already signed");
         } else if (builder.signature != null) {
             this.signature = builder.signature;
         } else if (secretPhrase != null) {
             //判断发送者的公钥是否合法
             byte[] senderPublicKey = builder.senderPublicKey != null ? builder.senderPublicKey : Account.getPublicKey(builder.senderId);
             if (senderPublicKey != null && ! Arrays.equals(senderPublicKey, Crypto.getPublicKey(secretPhrase))) {
-                throw new ShareschainException.NotValidException("Secret phrase doesn't match transaction sender public key");
+                throw new ShareschainExceptions.NotValidExceptions("Secret phrase doesn't match transaction sender public key");
             }
             //利用密码对交易进行签名64位
             this.signature = Crypto.sign(bytes(), secretPhrase);
@@ -107,47 +107,47 @@ public class SmcTransactionImpl extends TransactionImpl implements SmcTransactio
 
     /**
      * 交易验证
-     * @throws ShareschainException.ValidationException
+     * @throws ShareschainExceptions.ValidationExceptions
      */
     @Override
-    public void validate() throws ShareschainException.ValidationException {
+    public void validate() throws ShareschainExceptions.ValidationExceptions {
         try {
             super.validate();//交易通用验证
             //主链是否包含此交易类型
             if (SmcTransactionType.findTransactionType(getType().getType(), getType().getSubtype()) == null) {
-                throw new ShareschainException.NotValidException("Invalid transaction type " + getType().getName() + " for SmcTransaction");
+                throw new ShareschainExceptions.NotValidExceptions("Invalid transaction type " + getType().getName() + " for SmcTransaction");
             }
             int appendixType = -1;
             //遍历附件，附件被定义交易的附加信息，比如：投票、别名等？？？？？？
             for (Appendix.AbstractAppendix appendage : appendages()) {
                 if (appendage.getAppendixType() <= appendixType) {
-                    throw new ShareschainException.NotValidException("Duplicate or not in order appendix " + appendage.getAppendixName());
+                    throw new ShareschainExceptions.NotValidExceptions("Duplicate or not in order appendix " + appendage.getAppendixName());
                 }
                 //appendixType = 0
                 appendixType = appendage.getAppendixType();
                 if (!appendage.isAllowed(Mainchain.mainchain)) {//判断该链上是否允许该附件，附件被定义交易的附加信息，比如：投票、别名等
-                    throw new ShareschainException.NotValidException("Appendix not allowed on Smc chain " + appendage.getAppendixName());
+                    throw new ShareschainExceptions.NotValidExceptions("Appendix not allowed on Smc chain " + appendage.getAppendixName());
                 }
                 appendage.loadPrunable(this);//加载
                 if (!appendage.verifyVersion()) {//验证附件的版本
-                    throw new ShareschainException.NotValidException("Invalid attachment version " + appendage.getVersion());
+                    throw new ShareschainExceptions.NotValidExceptions("Invalid attachment version " + appendage.getVersion());
                 }
                 appendage.validate(this);//验证长度
             }
             //交易的大小是否超过区块允许的最大值(128*1024b) 128kb
             if (getFullSize() > Constants.MAX_CHILDBLOCK_PAYLOAD_LENGTH) {
-                throw new ShareschainException.NotValidException("Transaction size " + getFullSize() + " exceeds maximum payload size");
+                throw new ShareschainExceptions.NotValidExceptions("Transaction size " + getFullSize() + " exceeds maximum payload size");
             }
             //根据区块高度获取最低的KER费用
             long minimumFeeKER = getMinimumFeeKER(Shareschain.getBlockchain().getHeight());
             if (feeKER < minimumFeeKER) {//验证交易费用是否合法
-                throw new ShareschainException.NotCurrentlyValidException(String.format("Transaction fee %f %s less than minimum fee %f %s at height %d",
+                throw new ShareschainExceptions.NotCurrentlyValidExceptions(String.format("Transaction fee %f %s less than minimum fee %f %s at height %d",
                         ((double) feeKER) / Constants.KER_PER_SCTK, Mainchain.MAINCHAIN_NAME, ((double) minimumFeeKER) / Constants.KER_PER_SCTK, Mainchain.MAINCHAIN_NAME,
                         Shareschain.getBlockchain().getHeight()));
             }
             validateEcBlock();//验证已知区块高度和当前区块高度是否合法
             //检查交易账号是否存在，账号是否属于[账户控制]类型
-        } catch (ShareschainException.NotValidException e) {
+        } catch (ShareschainExceptions.NotValidExceptions e) {
             if (getSignature() != null) {
                 Logger.logMessageWithExcpt("Invalid transaction " + getStringId());
             }
@@ -156,7 +156,7 @@ public class SmcTransactionImpl extends TransactionImpl implements SmcTransactio
     }
 
     @Override
-    protected void validateId() throws ShareschainException.ValidationException {
+    protected void validateId() throws ShareschainExceptions.ValidationExceptions {
         super.validateId();
         for (Appendix.AbstractAppendix appendage : appendages()) {
             appendage.validateId(this);

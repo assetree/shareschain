@@ -1,10 +1,10 @@
 
 package shareschain.blockchain;
 
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.account.Account;
 import shareschain.account.AccountControlSmcTransactionType;
-import shareschain.account.AccountLedger;
+import shareschain.account.AccountChainLedger;
 import shareschain.account.PaymentSmcTransactionType;
 
 public abstract class SmcTransactionType extends TransactionType {
@@ -59,7 +59,7 @@ public abstract class SmcTransactionType extends TransactionType {
             return false;
         }
 
-        AccountLedger.LedgerEventId eventId = AccountLedger.newEventId(transaction);
+        AccountChainLedger.LedgerEventId eventId = AccountChainLedger.newEventId(transaction);
         //更新余额表中的未确认余额unconfirmed_balance字段值
         senderAccount.addToUnconfirmedBalance(Mainchain.mainchain, getLedgerEvent(), eventId, -amount, -fee);
         if (!applyAttachmentUnconfirmed(transaction, senderAccount)) {
@@ -83,7 +83,7 @@ public abstract class SmcTransactionType extends TransactionType {
     @Override
     public final void apply(TransactionImpl transaction, Account senderAccount, Account recipientAccount) {
         long amount = transaction.getAmount();
-        AccountLedger.LedgerEventId eventId = AccountLedger.newEventId(transaction);
+        AccountChainLedger.LedgerEventId eventId = AccountChainLedger.newEventId(transaction);
         //if (!transaction.attachmentIsPhased()) {
         senderAccount.addToBalance(Mainchain.mainchain, getLedgerEvent(), eventId, -amount, -transaction.getFee());
         /* never phased
@@ -100,23 +100,23 @@ public abstract class SmcTransactionType extends TransactionType {
     @Override
     public final void undoUnconfirmed(TransactionImpl transaction, Account senderAccount) {
         undoAttachmentUnconfirmed(transaction, senderAccount);
-        senderAccount.addToUnconfirmedBalance(Mainchain.mainchain, getLedgerEvent(), AccountLedger.newEventId(transaction),
+        senderAccount.addToUnconfirmedBalance(Mainchain.mainchain, getLedgerEvent(), AccountChainLedger.newEventId(transaction),
                 transaction.getAmount(), transaction.getFee());
     }
 
     @Override
-    public final void validateAttachment(Transaction transaction) throws ShareschainException.ValidationException {
+    public final void validateAttachment(Transaction transaction) throws ShareschainExceptions.ValidationExceptions {
         validateAttachment((SmcTransactionImpl)transaction);
     }
 
-    protected abstract void validateAttachment(SmcTransactionImpl transaction) throws ShareschainException.ValidationException;
+    protected abstract void validateAttachment(SmcTransactionImpl transaction) throws ShareschainExceptions.ValidationExceptions;
 
     @Override
-    protected void validateId(Transaction transaction) throws ShareschainException.ValidationException {
+    protected void validateId(Transaction transaction) throws ShareschainExceptions.ValidationExceptions {
         validateId((SmcTransactionImpl)transaction);
     }
 
-    protected void validateId(SmcTransactionImpl transaction) throws ShareschainException.ValidationException {
+    protected void validateId(SmcTransactionImpl transaction) throws ShareschainExceptions.ValidationExceptions {
     }
 
     @Override

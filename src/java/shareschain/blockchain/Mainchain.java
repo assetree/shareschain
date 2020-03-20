@@ -2,7 +2,7 @@
 package shareschain.blockchain;
 
 import shareschain.Constants;
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.network.APIEnum;
 import shareschain.network.APITag;
 import org.json.simple.JSONObject;
@@ -69,7 +69,7 @@ public final class Mainchain extends Chain {
     }
 
     @Override
-    UnconfirmedTransaction newUnconfirmedTransaction(ResultSet rs) throws SQLException, ShareschainException.NotValidException {
+    UnconfirmedTransaction newUnconfirmedTransaction(ResultSet rs) throws SQLException, ShareschainExceptions.NotValidExceptions {
         return new UnconfirmedSmcTransaction(rs);
     }
 }

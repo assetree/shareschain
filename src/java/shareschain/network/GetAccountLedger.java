@@ -1,11 +1,11 @@
 
 package shareschain.network;
 
-import shareschain.ShareschainException;
-import shareschain.account.AccountLedger;
-import shareschain.account.AccountLedger.LedgerEntry;
-import shareschain.account.AccountLedger.LedgerEvent;
-import shareschain.account.AccountLedger.LedgerHolding;
+import shareschain.ShareschainExceptions;
+import shareschain.account.AccountChainLedger;
+import shareschain.account.AccountChainLedger.LedgerEntry;
+import shareschain.account.AccountChainLedger.LedgerEvent;
+import shareschain.account.AccountChainLedger.LedgerHolding;
 import shareschain.util.Convert;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -185,10 +185,10 @@ public class GetAccountLedger extends APIServlet.APIRequestHandler {
      *
      * @param   req                 API request
      * @return                      API response
-     * @throws ShareschainException        Invalid request
+     * @throws ShareschainExceptions        Invalid request
      */
     @Override
-    protected JSONStreamAware processRequest(HttpServletRequest req) throws ShareschainException {
+    protected JSONStreamAware processRequest(HttpServletRequest req) throws ShareschainExceptions {
         //
         // Process the request parameters
         //
@@ -203,7 +203,7 @@ public class GetAccountLedger extends APIServlet.APIRequestHandler {
                 event = LedgerEvent.valueOf(eventType);
                 eventId = ParameterParser.getUnsignedLong(req, "event", false);
             } catch (RuntimeException e) {
-                throw new ParameterException(JSONResponses.incorrect("eventType"));
+                throw new ParameterExceptions(JSONResponses.incorrect("eventType"));
             }
         }
         String holdingType = Convert.emptyToNull(req.getParameter("holdingType"));
@@ -214,7 +214,7 @@ public class GetAccountLedger extends APIServlet.APIRequestHandler {
                 holding = LedgerHolding.valueOf(holdingType);
                 holdingId = ParameterParser.getUnsignedLong(req, "holding", false);
             } catch (RuntimeException e) {
-                throw new ParameterException(JSONResponses.incorrect("holdingType"));
+                throw new ParameterExceptions(JSONResponses.incorrect("holdingType"));
             }
         }
         boolean includeTransactions = "true".equalsIgnoreCase(req.getParameter("includeTransactions"));
@@ -223,7 +223,7 @@ public class GetAccountLedger extends APIServlet.APIRequestHandler {
         //
         // Get the ledger entries
         //
-        List<LedgerEntry> ledgerEntries = AccountLedger.getEntries(accountId, event, eventId,
+        List<LedgerEntry> ledgerEntries = AccountChainLedger.getEntries(accountId, event, eventId,
                                                                    holding, holdingId, firstIndex, lastIndex);
         //
         // Return the response

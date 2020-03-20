@@ -1,7 +1,7 @@
 
 package shareschain.network;
 
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.account.Account;
 import shareschain.account.PaymentSmcAttachment;
 import shareschain.blockchain.Attachment;
@@ -21,10 +21,10 @@ public final class SendMoney extends CreateTransaction {
      * 接收前台发送交易的接口
      * @param req
      * @return
-     * @throws ShareschainException
+     * @throws ShareschainExceptions
      */
     @Override
-    protected JSONStreamAware processRequest(HttpServletRequest req) throws ShareschainException {
+    protected JSONStreamAware processRequest(HttpServletRequest req) throws ShareschainExceptions {
         long recipient = ParameterParser.getAccountId(req, "recipient", true);
         //amountKER表示转账金额
         long amountKER = ParameterParser.getAmountKER(req);

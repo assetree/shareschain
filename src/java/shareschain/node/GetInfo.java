@@ -3,7 +3,7 @@ package shareschain.node;
 
 import shareschain.Constants;
 import shareschain.Shareschain;
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.permission.Role;
 import shareschain.permission.RoleMapperFactory;
 import shareschain.permission.SecurityToken;
@@ -167,7 +167,7 @@ final class GetInfo {
                 List<Transaction> transactions = response.getTransactions();
                 List<? extends Transaction> addedTransactions = Shareschain.getTransactionProcessor().processNodeTransactions(transactions);
                 TransactionsInventory.cacheTransactions(addedTransactions);
-            } catch (ShareschainException.ValidationException | RuntimeException e) {
+            } catch (ShareschainExceptions.ValidationExceptions | RuntimeException e) {
                 node.blacklist(e);
             }
         });

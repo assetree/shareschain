@@ -2,7 +2,7 @@
 package shareschain.blockchain;
 
 import shareschain.Shareschain;
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.database.DBKey;
 import shareschain.util.Filter;
 import shareschain.util.Logger;
@@ -20,7 +20,7 @@ public abstract class UnconfirmedTransaction implements Transaction {
         Chain chain = Chain.getChain(rs.getInt("chain_id"));
         try {
             return chain.newUnconfirmedTransaction(rs);
-        } catch (ShareschainException.NotValidException e) {
+        } catch (ShareschainExceptions.NotValidExceptions e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
@@ -47,7 +47,7 @@ public abstract class UnconfirmedTransaction implements Transaction {
             this.feePerByte = rs.getLong("fee_per_byte");
             this.isBundled = rs.getBoolean("is_bundled");
             this.dbKey = TransactionProcessorImpl.getInstance().unconfirmedTransactionDBKeyFactory.newKey(transaction.getId());
-        } catch (ShareschainException.ValidationException e) {
+        } catch (ShareschainExceptions.ValidationExceptions e) {
             throw new RuntimeException(e.toString(), e);
         }
     }
@@ -203,10 +203,10 @@ public abstract class UnconfirmedTransaction implements Transaction {
     }
 
     @Override
-    public void validate() throws ShareschainException.ValidationException {
+    public void validate() throws ShareschainExceptions.ValidationExceptions {
         if (TransactionProcessorImpl.getInstance().getUnconfirmedTransaction(transaction.getId()) != null
                 || getChain().getTransactionHome().hasTransaction(transaction)) {
-            throw new ShareschainException.ExistingTransactionException("Transaction already processed");
+            throw new ShareschainExceptions.ExistingTransactionExceptions("Transaction already processed");
         }
         transaction.validate();
     }

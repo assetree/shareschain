@@ -22,7 +22,7 @@ public final class GetSmcTransaction extends APIServlet.APIRequestHandler {
     }
 
     @Override
-    protected JSONStreamAware processRequest(HttpServletRequest req) throws ParameterException {
+    protected JSONStreamAware processRequest(HttpServletRequest req) throws ParameterExceptions {
 
         long transactionId = ParameterParser.getUnsignedLong(req, "transaction", false);
         if (transactionId == 0) {

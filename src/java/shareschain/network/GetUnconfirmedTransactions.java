@@ -23,7 +23,7 @@ public final class GetUnconfirmedTransactions extends APIServlet.APIRequestHandl
     }
 
     @Override
-    protected JSONStreamAware processRequest(HttpServletRequest req) throws ParameterException {
+    protected JSONStreamAware processRequest(HttpServletRequest req) throws ParameterExceptions {
 
         Chain chain = ParameterParser.getChain(req, false);
         Set<Long> accountIds = Convert.toSet(ParameterParser.getAccountIds(req, false));

@@ -54,7 +54,7 @@ public final class APIProxyServlet extends AsyncMiddleManServlet {
             String requestType = getRequestType(parameters);
             if (APIProxy.isActivated() && isForwardable(requestType)) {
                 if (parameters.containsKey("secretPhrase") || parameters.containsKey("adminPassword") || parameters.containsKey("sharedKey")) {
-                    throw new ParameterException(JSONResponses.PROXY_SECRET_DATA_DETECTED);
+                    throw new ParameterExceptions(JSONResponses.PROXY_SECRET_DATA_DETECTED);
                 }
                 if (!initRemoteRequest(request, requestType)) {
                     if (Nodes.getNodes(node -> node.getState() == Node.State.CONNECTED, 1).size() >= 1) {
@@ -69,7 +69,7 @@ public final class APIProxyServlet extends AsyncMiddleManServlet {
                 APIServlet apiServlet = (APIServlet)request.getServletContext().getAttribute("apiServlet");
                 apiServlet.service(request, response);
             }
-        } catch (ParameterException e) {
+        } catch (ParameterExceptions e) {
             responseJson = e.getErrorResponse();
         } finally {
             if (responseJson != null) {
@@ -134,18 +134,18 @@ public final class APIProxyServlet extends AsyncMiddleManServlet {
         }
     }
 
-    private String getRequestType(MultiMap<String> parameters) throws ParameterException {
+    private String getRequestType(MultiMap<String> parameters) throws ParameterExceptions {
         String requestType = parameters.getString("requestType");
         if (Convert.emptyToNull(requestType) == null) {
-            throw new ParameterException(JSONResponses.PROXY_MISSING_REQUEST_TYPE);
+            throw new ParameterExceptions(JSONResponses.PROXY_MISSING_REQUEST_TYPE);
         }
 
         APIServlet.APIRequestHandler apiRequestHandler = APIServlet.apiRequestHandlers.get(requestType);
         if (apiRequestHandler == null) {
             if (APIServlet.disabledRequestHandlers.containsKey(requestType)) {
-                throw new ParameterException(JSONResponses.ERROR_DISABLED);
+                throw new ParameterExceptions(JSONResponses.ERROR_DISABLED);
             } else {
-                throw new ParameterException(JSONResponses.ERROR_INCORRECT_REQUEST);
+                throw new ParameterExceptions(JSONResponses.ERROR_INCORRECT_REQUEST);
             }
         }
         return requestType;

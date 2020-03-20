@@ -3,7 +3,7 @@ package shareschain.network;
 
 import shareschain.Constants;
 import shareschain.Shareschain;
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.account.Account;
 import shareschain.account.PublicKeyAnnouncementAppendix;
 import shareschain.blockchain.Attachment;
@@ -65,17 +65,17 @@ abstract class CreateTransaction extends APIServlet.APIRequestHandler {
     }
 
     final JSONStreamAware createTransaction(HttpServletRequest req, Account senderAccount, Attachment attachment)
-            throws ShareschainException {
+            throws ShareschainExceptions {
         return createTransaction(req, senderAccount, 0, 0, attachment, null);
     }
 
     final JSONStreamAware createTransaction(HttpServletRequest req, Account senderAccount, Attachment attachment,
-            Chain txChain) throws ShareschainException {
+            Chain txChain) throws ShareschainExceptions {
         return createTransaction(req, senderAccount, 0, 0, attachment, txChain);
     }
 
     final JSONStreamAware createTransaction(HttpServletRequest req, Account senderAccount, long recipientId,
-                                            long amountKER, Attachment attachment) throws ShareschainException {
+                                            long amountKER, Attachment attachment) throws ShareschainExceptions {
         return createTransaction(req, senderAccount, recipientId, amountKER, attachment, null);
     }
 
@@ -88,10 +88,10 @@ abstract class CreateTransaction extends APIServlet.APIRequestHandler {
      * @param attachment
      * @param txChain
      * @return
-     * @throws ShareschainException
+     * @throws ShareschainExceptions
      */
     final JSONStreamAware createTransaction(HttpServletRequest req, Account senderAccount, long recipientId,
-                                            long amountKER, Attachment attachment, Chain txChain) throws ShareschainException {
+                                            long amountKER, Attachment attachment, Chain txChain) throws ShareschainExceptions {
         //根据参数referencedTransaction(客户端对应的参考交易哈希) 获取链的交易id
         // 感觉ChainTransactionId的作用不是字面表达的意思
         ChainTransactionId referencedTransactionId = ParameterParser.getChainTransactionId(req, "referencedTransaction");
@@ -146,7 +146,7 @@ abstract class CreateTransaction extends APIServlet.APIRequestHandler {
         try {
             Transaction.Builder builder = chain.newTransactionBuilder(publicKey, amountKER, feeKER, deadline, attachment);
             if (!(attachment.getTransactionType() instanceof SmcTransactionType)) {
-                throw new ParameterException(JSONResponses.incorrect("chain",
+                throw new ParameterExceptions(JSONResponses.incorrect("chain",
                         attachment.getTransactionType().getName() + " attachment not allowed for "
                                 + chain.getName() + " chain"));
             }
@@ -186,7 +186,7 @@ abstract class CreateTransaction extends APIServlet.APIRequestHandler {
             response.put("transactionJSON", transactionJSON);
             try {
                 response.put("unsignedTransactionBytes", Convert.toHexString(transaction.getUnsignedBytes()));
-            } catch (ShareschainException.NotYetEncryptedException ignore) {}
+            } catch (ShareschainExceptions.NotYetEncryptedException ignore) {}
             if (secretPhrase != null) {
                 response.put("fullHash", transactionJSON.get("fullHash"));
                 response.put("transactionBytes", Convert.toHexString(transaction.getBytes()));
@@ -202,11 +202,11 @@ abstract class CreateTransaction extends APIServlet.APIRequestHandler {
                 transaction.validate();
                 response.put("broadcasted", false);
             }
-        } catch (ShareschainException.NotYetEnabledException e) {
+        } catch (ShareschainExceptions.NotYetEnabledExceptions e) {
             return FEATURE_NOT_AVAILABLE;
-        } catch (ShareschainException.InsufficientBalanceException e) {
+        } catch (ShareschainExceptions.InsufficientBalanceExceptions e) {
             throw e;
-        } catch (ShareschainException.ValidationException e) {
+        } catch (ShareschainExceptions.ValidationExceptions e) {
             if (broadcast) {
                 response.clear();
             }

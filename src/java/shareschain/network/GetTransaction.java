@@ -21,7 +21,7 @@ public final class GetTransaction extends APIServlet.APIRequestHandler {
     }
 
     @Override
-    protected JSONStreamAware processRequest(HttpServletRequest req) throws ParameterException {
+    protected JSONStreamAware processRequest(HttpServletRequest req) throws ParameterExceptions {
 
         byte[] transactionFullHash = ParameterParser.getBytes(req, "fullHash", true);
         boolean includePhasingResult = "true".equalsIgnoreCase(req.getParameter("includePhasingResult"));

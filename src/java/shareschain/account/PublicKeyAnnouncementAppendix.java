@@ -1,7 +1,7 @@
 
 package shareschain.account;
 
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.blockchain.Appendix;
 import shareschain.blockchain.Chain;
 import shareschain.blockchain.Transaction;
@@ -75,20 +75,20 @@ public final class PublicKeyAnnouncementAppendix extends Appendix.AbstractAppend
     }
 
     @Override
-    public void validate(Transaction transaction) throws ShareschainException.ValidationException {
+    public void validate(Transaction transaction) throws ShareschainExceptions.ValidationExceptions {
         if (transaction.getRecipientId() == 0) {
-            throw new ShareschainException.NotValidException("PublicKeyAnnouncement cannot be attached to transactions with no recipient");
+            throw new ShareschainExceptions.NotValidExceptions("PublicKeyAnnouncement cannot be attached to transactions with no recipient");
         }
         if (!Crypto.isCanonicalPublicKey(publicKey)) {
-            throw new ShareschainException.NotValidException("Invalid recipient public key: " + Convert.toHexString(publicKey));
+            throw new ShareschainExceptions.NotValidExceptions("Invalid recipient public key: " + Convert.toHexString(publicKey));
         }
         long recipientId = transaction.getRecipientId();
         if (Account.getId(this.publicKey) != recipientId) {
-            throw new ShareschainException.NotValidException("Announced public key does not match recipient accountId");
+            throw new ShareschainExceptions.NotValidExceptions("Announced public key does not match recipient accountId");
         }
         byte[] recipientPublicKey = Account.getPublicKey(recipientId);
         if (recipientPublicKey != null && ! Arrays.equals(publicKey, recipientPublicKey)) {
-            throw new ShareschainException.NotCurrentlyValidException("A different public key for this account has already been announced");
+            throw new ShareschainExceptions.NotCurrentlyValidExceptions("A different public key for this account has already been announced");
         }
     }
 

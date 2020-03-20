@@ -17,7 +17,7 @@ public final class GetAccountId extends APIServlet.APIRequestHandler {
     }
 
     @Override
-    protected JSONStreamAware processRequest(HttpServletRequest req) throws ParameterException {
+    protected JSONStreamAware processRequest(HttpServletRequest req) throws ParameterExceptions {
 
         byte[] publicKey = ParameterParser.getPublicKey(req);
         long accountId = Account.getId(publicKey);

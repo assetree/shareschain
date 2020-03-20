@@ -141,10 +141,10 @@ public class EventRegister extends APIServlet.APIRequestHandler {
      *
      * @param   req                 API request
      * @return                      API response
-     * @throws  ParameterException  Invalid parameter specified
+     * @throws ParameterExceptions  Invalid parameter specified
      */
     @Override
-    protected JSONStreamAware processRequest(HttpServletRequest req) throws ParameterException {
+    protected JSONStreamAware processRequest(HttpServletRequest req) throws ParameterExceptions {
         JSONObject response = null;
         //
         // Get 'token', 'add' and 'remove' parameters

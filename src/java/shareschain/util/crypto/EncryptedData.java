@@ -1,7 +1,7 @@
 
 package shareschain.util.crypto;
 
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.util.Convert;
 
 import java.nio.ByteBuffer;
@@ -40,12 +40,12 @@ public final class EncryptedData {
     }
 
     public static EncryptedData readEncryptedData(ByteBuffer buffer, int length, int maxLength)
-            throws ShareschainException.NotValidException {
+            throws ShareschainExceptions.NotValidExceptions {
         if (length == 0) {
             return EMPTY_DATA;
         }
         if (length > maxLength) {
-            throw new ShareschainException.NotValidException("Max encrypted data length exceeded: " + length);
+            throw new ShareschainExceptions.NotValidExceptions("Max encrypted data length exceeded: " + length);
         }
         byte[] data = new byte[length];
         buffer.get(data);
@@ -62,7 +62,7 @@ public final class EncryptedData {
         buffer.order(ByteOrder.LITTLE_ENDIAN);
         try {
             return readEncryptedData(buffer, bytes.length - 32, Integer.MAX_VALUE);
-        } catch (ShareschainException.NotValidException e) {
+        } catch (ShareschainExceptions.NotValidExceptions e) {
             throw new RuntimeException(e.toString(), e); // never
         }
     }

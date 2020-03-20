@@ -438,9 +438,9 @@ public final class Generator implements Comparable<Generator> {
      * @param lastBlock
      * @param generationLimit
      * @return
-     * @throws BlockchainProcessor.BlockNotAcceptedException
+     * @throws BlockchainProcessor.BlockNotAcceptedExceptions
      */
-    boolean forge(Block lastBlock, int generationLimit) throws BlockchainProcessor.BlockNotAcceptedException {
+    boolean forge(Block lastBlock, int generationLimit) throws BlockchainProcessor.BlockNotAcceptedExceptions {
         int timestamp = getTimestamp(generationLimit);
         if (!verifyHit(hit, effectiveBalance, lastBlock, timestamp)) {
             Logger.logDebugMessage(this.toString() + " failed to forge at " + timestamp + " height " + lastBlock.getHeight() + " last timestamp " + lastBlock.getTimestamp());
@@ -455,7 +455,7 @@ public final class Generator implements Comparable<Generator> {
                 BlockchainProcessorImpl.getInstance().generateBlock(secretPhrase, timestamp);
                 setDelay(Constants.FORGING_DELAY);
                 return true;
-            } catch (BlockchainProcessor.TransactionNotAcceptedException e) {
+            } catch (BlockchainProcessor.TransactionNotAcceptedExceptions e) {
                 // the bad transaction has been expunged, try again
                 if (Shareschain.getEpochTime() - start > 10) { // give up after trying for 10 s
                     throw e;

@@ -1,7 +1,7 @@
 
 package shareschain.network;
 
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.account.Account;
 import shareschain.util.crypto.Crypto;
 import shareschain.util.Convert;
@@ -19,7 +19,7 @@ public final class GetSharedKey extends APIServlet.APIRequestHandler {
     }
 
     @Override
-    protected JSONStreamAware processRequest(HttpServletRequest req) throws ShareschainException {
+    protected JSONStreamAware processRequest(HttpServletRequest req) throws ShareschainExceptions {
 
         String secretPhrase = ParameterParser.getSecretPhrase(req, true);
         byte[] nonce = ParameterParser.getBytes(req, "nonce", true);

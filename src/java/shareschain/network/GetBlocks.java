@@ -2,7 +2,7 @@
 package shareschain.network;
 
 import shareschain.Shareschain;
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.blockchain.Block;
 import shareschain.database.DBIterator;
 import org.json.simple.JSONArray;
@@ -20,7 +20,7 @@ public final class GetBlocks extends APIServlet.APIRequestHandler {
     }
 
     @Override
-    protected JSONStreamAware processRequest(HttpServletRequest req) throws ShareschainException {
+    protected JSONStreamAware processRequest(HttpServletRequest req) throws ShareschainExceptions {
 
         int firstIndex = ParameterParser.getFirstIndex(req);
         int lastIndex = ParameterParser.getLastIndex(req);

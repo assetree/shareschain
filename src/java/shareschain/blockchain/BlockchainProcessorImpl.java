@@ -3,9 +3,9 @@ package shareschain.blockchain;
 
 import shareschain.Constants;
 import shareschain.Shareschain;
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.account.Account;
-import shareschain.account.AccountLedger;
+import shareschain.account.AccountChainLedger;
 import shareschain.util.crypto.Crypto;
 import shareschain.database.DBIterator;
 import shareschain.database.DerivedDBTable;
@@ -329,7 +329,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                     blockchain.updateUnlock();
                 }
 
-            } catch (ShareschainException.StopException e) {
+            } catch (ShareschainExceptions.StopException e) {
                 Logger.logMessageWithExcpt("Blockchain download stopped: " + e.getMessage());
                 throw new InterruptedException("Blockchain download stopped");
             } catch (Exception e) {
@@ -577,7 +577,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                     if (blockchain.getLastBlock().getId() == block.getPreviousBlockId()) {
                         try {
                             pushBlock(block);
-                        } catch (BlockNotAcceptedException e) {
+                        } catch (BlockNotAcceptedExceptions e) {
                             nodeBlock.getNode().blacklist(e);
                         }
                     } else {
@@ -592,7 +592,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                     Logger.logDebugMessage("Will process a fork of " + forkBlocks.size() + " blocks, mine is " + myForkSize);
                     try {
                         processFork(forkBlocks, commonBlock);
-                    } catch (BlockNotAcceptedException e) {
+                    } catch (BlockNotAcceptedExceptions e) {
                         feederNode.blacklist(e);
                     }
                 }
@@ -607,9 +607,9 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
      * 处理节点分叉
      * @param forkBlocks
      * @param commonBlock
-     * @throws BlockNotAcceptedException
+     * @throws BlockNotAcceptedExceptions
      */
-    private void processFork(final List<Block> forkBlocks, final Block commonBlock) throws BlockNotAcceptedException {
+    private void processFork(final List<Block> forkBlocks, final Block commonBlock) throws BlockNotAcceptedExceptions {
         BigInteger curCumulativeDifficulty = blockchain.getLastBlock().getCumulativeDifficulty();
         List<BlockImpl> myPoppedOffBlocks = popOffTo(commonBlock);
         BlockImpl lowerCumulativeDifficultyBlock = null;
@@ -635,7 +635,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 }
             }
             if (lowerCumulativeDifficultyBlock != null) {
-                throw new BlockOfLowerDifficultyException(lowerCumulativeDifficultyBlock);
+                throw new BlockOfLowerDifficultyExceptions(lowerCumulativeDifficultyBlock);
             }
         } finally {
             if (pushedForkBlocks == 0) {
@@ -644,7 +644,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                     BlockImpl block = myPoppedOffBlocks.remove(i);
                     try {
                         pushBlock(block);
-                    } catch (BlockNotAcceptedException e) {
+                    } catch (BlockNotAcceptedExceptions e) {
                         Logger.logErrorMessage("Popped off block no longer acceptable: " + block.toString(), e);
                         break;
                     }
@@ -728,7 +728,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             List<Block> blockList;
             try {
                 blockList = response.getBlocks();
-            } catch (RuntimeException | ShareschainException.NotValidException e) {
+            } catch (RuntimeException | ShareschainExceptions.NotValidExceptions e) {
                 Logger.logDebugMessage("Failed to parse block: " + e.toString(), e);
                 node.blacklist(e);
                 blockList = null;
@@ -934,7 +934,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                     }
                 }
                 Logger.logDebugMessage("Done retrieving prunable transactions from " + node.getHost());
-            } catch (ShareschainException.NotValidException e) {
+            } catch (ShareschainExceptions.NotValidExceptions e) {
                 Logger.logErrorMessage("Node " + node.getHost() + " returned invalid prunable transaction", e);
                 node.blacklist(e);
             } catch (RuntimeException e) {
@@ -1163,10 +1163,10 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
      * The block must be a continuation of the current chain or a replacement for the current last block
      *
      * @param   inputBlock              Node block
-     * @throws ShareschainException            Block was not accepted
+     * @throws ShareschainExceptions            Block was not accepted
      */
     @Override
-    public void processNodeBlock(Block inputBlock) throws ShareschainException {
+    public void processNodeBlock(Block inputBlock) throws ShareschainExceptions {
         BlockImpl block = (BlockImpl)inputBlock;
         BlockImpl lastBlock = blockchain.getLastBlock();
         if (block.getPreviousBlockId() == lastBlock.getId()) {
@@ -1183,7 +1183,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                     pushBlock(block);
                     TransactionProcessorImpl.getInstance().processLater(lastBlock.getSmcTransactions());
                     Logger.logDebugMessage("Last block " + lastBlock.getStringId() + " was replaced by " + block.getStringId());
-                } catch (BlockNotAcceptedException e) {
+                } catch (BlockNotAcceptedExceptions e) {
                     Logger.logDebugMessage("Replacement block failed to be accepted, pushing back our last block");
                     pushBlock(lastBlock);
                     TransactionProcessorImpl.getInstance().processLater(block.getSmcTransactions());
@@ -1202,10 +1202,10 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
      * the current last block.
      *
      * @param   inputBlocks             Node blocks
-     * @throws ShareschainException            Blocks were not accepted
+     * @throws ShareschainExceptions            Blocks were not accepted
      */
     @Override
-    public void processNodeBlocks(List<Block> inputBlocks) throws ShareschainException {
+    public void processNodeBlocks(List<Block> inputBlocks) throws ShareschainExceptions {
         if (inputBlocks.size() != 2) {
             return;                     // We only handle 2-block forks
         }
@@ -1339,9 +1339,9 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     /**
      *
      * @param block
-     * @throws BlockNotAcceptedException
+     * @throws BlockNotAcceptedExceptions
      */
-    private void pushBlock(final BlockImpl block) throws BlockNotAcceptedException {
+    private void pushBlock(final BlockImpl block) throws BlockNotAcceptedExceptions {
 
         int curTime = Shareschain.getEpochTime();
 
@@ -1364,7 +1364,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                             + " current time " + curTime;
                     Logger.logDebugMessage(msg);
                     Generator.setDelay(-Constants.FORGING_SPEEDUP);
-                    throw new BlockOutOfOrderException(msg, block);
+                    throw new BlockOutOfOrderExceptions(msg, block);
                 }
 
                 Map<TransactionType, Map<String, Integer>> duplicates = new HashMap<>();
@@ -1424,45 +1424,45 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
      * @param block
      * @param previousLastBlock
      * @param curTime
-     * @throws BlockNotAcceptedException
+     * @throws BlockNotAcceptedExceptions
      */
-    private void validate(BlockImpl block, BlockImpl previousLastBlock, int curTime) throws BlockNotAcceptedException {
+    private void validate(BlockImpl block, BlockImpl previousLastBlock, int curTime) throws BlockNotAcceptedExceptions {
         if (previousLastBlock.getId() != block.getPreviousBlockId()) {
-            throw new BlockOutOfOrderException("Previous block id doesn't match", block);
+            throw new BlockOutOfOrderExceptions("Previous block id doesn't match", block);
         }
         if (block.getVersion() != getBlockVersion(previousLastBlock.getHeight())) {
-            throw new BlockNotAcceptedException("Invalid version " + block.getVersion(), block);
+            throw new BlockNotAcceptedExceptions("Invalid version " + block.getVersion(), block);
         }
         if (block.getTimestamp() > curTime + Constants.MAX_TIMEDRIFT) {
             Logger.logWarningMessage("Received block " + block.getStringId() + " from the future, timestamp " + block.getTimestamp()
                             + " generator " + Long.toUnsignedString(block.getGeneratorId()) + " current time " + curTime + ", system clock may be off");
-            throw new BlockOutOfOrderException("Invalid timestamp: " + block.getTimestamp()
+            throw new BlockOutOfOrderExceptions("Invalid timestamp: " + block.getTimestamp()
                     + " current time is " + curTime, block);
         }
         if (block.getTimestamp() <= previousLastBlock.getTimestamp()) {
-            throw new BlockNotAcceptedException("Block timestamp " + block.getTimestamp() + " is before previous block timestamp "
+            throw new BlockNotAcceptedExceptions("Block timestamp " + block.getTimestamp() + " is before previous block timestamp "
                     + previousLastBlock.getTimestamp(), block);
         }
         if (!Arrays.equals(Crypto.sha256().digest(previousLastBlock.bytes()), block.getPreviousBlockHash())) {
-            throw new BlockNotAcceptedException("Previous block hash doesn't match", block);
+            throw new BlockNotAcceptedExceptions("Previous block hash doesn't match", block);
         }
         //6、数据库保存的父区块高度是否小于当前区块高度
         if (block.getId() == 0L || BlockDB.hasBlock(block.getId(), previousLastBlock.getHeight())) {
-            throw new BlockNotAcceptedException("Duplicate block or invalid id", block);
+            throw new BlockNotAcceptedExceptions("Duplicate block or invalid id", block);
         }
         //验证区块生成时间是否合法,锻造者的公钥是否合法
         if (!block.verifyGenerationSignature() && !Generator.allowsFakeForging(block.getGeneratorPublicKey())) {
             Account generatorAccount = Account.getAccount(block.getGeneratorId());
             long generatorBalance = generatorAccount == null ? 0 : generatorAccount.getEffectiveBalanceSCTK();
-            throw new BlockNotAcceptedException("Generation signature verification failed, effective balance " + generatorBalance, block);
+            throw new BlockNotAcceptedExceptions("Generation signature verification failed, effective balance " + generatorBalance, block);
         }
         //验证区块的签名
         if (!block.verifyBlockSignature()) {
-            throw new BlockNotAcceptedException("Block signature verification failed", block);
+            throw new BlockNotAcceptedExceptions("Block signature verification failed", block);
         }
         //判断区块最多交易数量是否大于10
         if (block.getSmcTransactions().size() > Constants.MAX_NUMBER_OF_SMC_TRANSACTIONS) {
-            throw new BlockNotAcceptedException("Invalid block transaction count " + block.getSmcTransactions().size(), block);
+            throw new BlockNotAcceptedExceptions("Invalid block transaction count " + block.getSmcTransactions().size(), block);
         }
     }
 
@@ -1473,10 +1473,10 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
      * @param curTime
      * @param duplicates
      * @param fullValidation 完全验证交易信息
-     * @throws BlockNotAcceptedException
+     * @throws BlockNotAcceptedExceptions
      */
     private void validateTransactions(BlockImpl block, BlockImpl previousLastBlock, int curTime, Map<TransactionType, Map<String, Integer>> duplicates,
-                                      boolean fullValidation) throws BlockNotAcceptedException {
+                                      boolean fullValidation) throws BlockNotAcceptedExceptions {
         long calculatedTotalFee = 0;
         MessageDigest digest = Crypto.sha256();
         Set<Long> transactionIds = fullValidation ? new HashSet<>() : null;
@@ -1488,14 +1488,14 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
             if (fullValidation) {
                 if (!transactionIds.add(smcTransaction.getId())) {
-                    throw new TransactionNotAcceptedException("Duplicate transaction id", smcTransaction);
+                    throw new TransactionNotAcceptedExceptions("Duplicate transaction id", smcTransaction);
                 }
                 //验证交易是否合法
                 fullyValidateTransaction(smcTransaction, block, previousLastBlock, curTime);
             }
 
             if (smcTransaction.attachmentIsDuplicate(duplicates, true)) {
-                throw new TransactionNotAcceptedException("Transaction is a duplicate", smcTransaction);
+                throw new TransactionNotAcceptedExceptions("Transaction is a duplicate", smcTransaction);
             }
             //计算交易金额
             calculatedTotalFee += smcTransaction.getFee();
@@ -1504,11 +1504,11 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         }
         //交易的总金额，与区块中交易的总金额不一致，抛出异常
         if (calculatedTotalFee != block.getTotalFeeKER()) {
-            throw new BlockNotAcceptedException("Total fee doesn't match transaction total", block);
+            throw new BlockNotAcceptedExceptions("Total fee doesn't match transaction total", block);
         }
         //交易的最终hash值与区块中保存的payloadHash值不一致，抛出异常
         if (!Arrays.equals(digest.digest(), block.getPayloadHash())) {
-            throw new BlockNotAcceptedException("Payload hash doesn't match", block);
+            throw new BlockNotAcceptedExceptions("Payload hash doesn't match", block);
         }
     }
 
@@ -1518,16 +1518,16 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
      * @param block
      * @param previousLastBlock
      * @param curTime
-     * @throws BlockNotAcceptedException
+     * @throws BlockNotAcceptedExceptions
      */
     private void validateTransaction(TransactionImpl transaction, BlockImpl block, BlockImpl previousLastBlock, int curTime)
-            throws BlockNotAcceptedException {
+            throws BlockNotAcceptedExceptions {
         if (transaction.getTimestamp() > curTime + Constants.MAX_TIMEDRIFT) {
-            throw new BlockOutOfOrderException("Invalid transaction timestamp: " + transaction.getTimestamp()
+            throw new BlockOutOfOrderExceptions("Invalid transaction timestamp: " + transaction.getTimestamp()
                     + ", current time is " + curTime, block);
         }
         if (!transaction.verifySignature()) {
-            throw new TransactionNotAcceptedException("Transaction signature verification failed at height " + previousLastBlock.getHeight(), transaction);
+            throw new TransactionNotAcceptedExceptions("Transaction signature verification failed at height " + previousLastBlock.getHeight(), transaction);
         }
     }
 
@@ -1537,40 +1537,40 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
      * @param block
      * @param previousLastBlock
      * @param curTime
-     * @throws BlockNotAcceptedException
+     * @throws BlockNotAcceptedExceptions
      */
     private void fullyValidateTransaction(SmcTransactionImpl transaction, BlockImpl block, BlockImpl previousLastBlock, int curTime)
-            throws BlockNotAcceptedException {
+            throws BlockNotAcceptedExceptions {
         if (transaction.getTimestamp() > block.getTimestamp() + Constants.MAX_TIMEDRIFT
                 || transaction.getExpiration() < block.getTimestamp()) {
-            throw new TransactionNotAcceptedException("Invalid transaction timestamp " + transaction.getTimestamp()
+            throw new TransactionNotAcceptedExceptions("Invalid transaction timestamp " + transaction.getTimestamp()
                     + ", current time is " + curTime + ", block timestamp is " + block.getTimestamp(), transaction);
         }
         //判断交易是否存在: 1.通过交易id判断交易是否存在 2.如果存在该交易，将通过高度判断，此交易是否已经发生
         if (TransactionHome.hasSmcTransaction(transaction.getId(), previousLastBlock.getHeight())) {
-            throw new TransactionNotAcceptedException("Transaction is already in the blockchain", transaction);
+            throw new TransactionNotAcceptedExceptions("Transaction is already in the blockchain", transaction);
         }
         //交易的版本号是否与上一区块的版本号一致，该版本号设置为1
         if (transaction.getVersion() != getTransactionVersion(previousLastBlock.getHeight())) {
-            throw new TransactionNotAcceptedException("Invalid transaction version " + transaction.getVersion()
+            throw new TransactionNotAcceptedExceptions("Invalid transaction version " + transaction.getVersion()
                     + " at height " + previousLastBlock.getHeight(), transaction);
         }
         try {
             transaction.validateId();
             transaction.validate(); // recursively validates child transactions for Smc transactions
-        } catch (ShareschainException.ValidationException e) {
-            throw new TransactionNotAcceptedException(e, transaction);
+        } catch (ShareschainExceptions.ValidationExceptions e) {
+            throw new TransactionNotAcceptedExceptions(e, transaction);
         }
     }
 
 
-    private void accept(BlockImpl block) throws TransactionNotAcceptedException {
+    private void accept(BlockImpl block) throws TransactionNotAcceptedExceptions {
         try {
             isProcessingBlock = true;
             for (SmcTransactionImpl transaction : block.getSmcTransactions()) {
                 //更新发送者的未确认余额信息
                 if (! transaction.applyUnconfirmed()) {
-                    throw new TransactionNotAcceptedException("Double spending", transaction);
+                    throw new TransactionNotAcceptedExceptions("Double spending", transaction);
                 }
             }
             blockListeners.notify(block, Event.BEFORE_BLOCK_APPLY);
@@ -1596,7 +1596,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                     transaction.apply();
                 } catch (RuntimeException e) {
                     Logger.logErrorMessage(e.toString(), e);
-                    throw new BlockchainProcessor.TransactionNotAcceptedException(e, transaction);
+                    throw new TransactionNotAcceptedExceptions(e, transaction);
                 }
             }
 
@@ -1608,10 +1608,10 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 });
                 TransactionProcessorImpl.getInstance().notifyListeners(confirmedTransactions, TransactionProcessor.Event.ADDED_CONFIRMED_TRANSACTIONS);
             }
-            AccountLedger.commitEntries();
+            AccountChainLedger.commitEntries();
         } finally {
             isProcessingBlock = false;
-            AccountLedger.clearEntries();
+            AccountChainLedger.clearEntries();
         }
     }
 
@@ -1761,7 +1761,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             //验证交易是否合法
             try {
                 unconfirmedTransaction.getTransaction().validate();
-            } catch (ShareschainException.ValidationException e) {
+            } catch (ShareschainExceptions.ValidationExceptions e) {
                 continue;
             }
             //
@@ -1787,9 +1787,9 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
      * 生成区块 只有generator 中调用
      * @param secretPhrase 密钥
      * @param blockTimestamp
-     * @throws BlockNotAcceptedException
+     * @throws BlockNotAcceptedExceptions
      */
-    public void generateBlock(String secretPhrase, int blockTimestamp) throws BlockNotAcceptedException {
+    public void generateBlock(String secretPhrase, int blockTimestamp) throws BlockNotAcceptedExceptions {
 
         Map<TransactionType, Map<String, Integer>> duplicates = new HashMap<>();
         /**
@@ -1852,7 +1852,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             Logger.logDebugMessage(String.format("Account %s generated block %s at height %d timestamp %d fee %f %s",
                     Long.toUnsignedString(block.getGeneratorId()), block.getStringId(), block.getHeight(), block.getTimestamp(),
                     ((float)block.getTotalFeeKER())/Constants.KER_PER_SCTK, Mainchain.MAINCHAIN_NAME));
-        } catch (TransactionNotAcceptedException e) {
+        } catch (TransactionNotAcceptedExceptions e) {
             Logger.logDebugMessage("Generate block failed: " + e.getMessage());
             TransactionProcessorImpl.getInstance().processWaitingTransactions();
             TransactionImpl transaction = e.getTransaction();
@@ -1864,7 +1864,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 blockchain.writeUnlock();
             }
             throw e;
-        } catch (BlockNotAcceptedException e) {
+        } catch (BlockNotAcceptedExceptions e) {
             Logger.logDebugMessage("Generate block failed: " + e.getMessage());
             throw e;
         }
@@ -2009,7 +2009,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                                     currentBlock.loadTransactions();
 
                                     if (currentBlock.getId() != currentBlockId || currentBlock.getHeight() > blockchain.getHeight() + 1) {
-                                        throw new ShareschainException.NotValidException("Database blocks in the wrong order!");
+                                        throw new ShareschainExceptions.NotValidExceptions("Database blocks in the wrong order!");
                                     }
 
                                     int curTime = Shareschain.getEpochTime();
@@ -2027,7 +2027,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                                         byte[] blockBytes = currentBlock.bytes();
                                         //块字节是否能解析回同一区块
                                         if (!Arrays.equals(blockBytes, BlockImpl.parseBlock(blockBytes, currentBlock.getSmcTransactions()).bytes())) {
-                                            throw new ShareschainException.NotValidException("Block bytes cannot be parsed back to the same block");
+                                            throw new ShareschainExceptions.NotValidExceptions("Block bytes cannot be parsed back to the same block");
                                         }
                                         //获取区块中所有的交易信息，包括子链交易
                                         List<TransactionImpl> transactions = new ArrayList<>();
@@ -2041,13 +2041,13 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                                             byte[] transactionBytes = transaction.bytes();
                                             //交易字节是否能够解析回同一交易
                                             if (!Arrays.equals(transactionBytes, TransactionImpl.newTransactionBuilder(transactionBytes).build().bytes())) {
-                                                throw new ShareschainException.NotValidException("Transaction bytes cannot be parsed back to the same transaction: "
+                                                throw new ShareschainExceptions.NotValidExceptions("Transaction bytes cannot be parsed back to the same transaction: "
                                                         + JSON.toJSONString(transaction.getJSONObject()));
                                             }
                                             //交易的json不能解析回同一交易
                                             JSONObject transactionJSON = (JSONObject) JSONValue.parse(JSON.toJSONString(transaction.getJSONObject()));
                                             if (!Arrays.equals(transactionBytes, TransactionImpl.newTransactionBuilder(transactionJSON).build().bytes())) {
-                                                throw new ShareschainException.NotValidException("Transaction JSON cannot be parsed back to the same transaction: "
+                                                throw new ShareschainExceptions.NotValidExceptions("Transaction JSON cannot be parsed back to the same transaction: "
                                                         + JSON.toJSONString(transaction.getJSONObject()));
                                             }
                                         }
@@ -2064,7 +2064,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                                 blockListeners.notify(currentBlock, Event.BLOCK_SCANNED);
                                 hasMore = true;
                                 currentBlockId = currentBlock.getNextBlockId();
-                            } catch (ShareschainException | RuntimeException e) {//如果以上抛出异常，对当前节点之后的节点信息进行回滚
+                            } catch (ShareschainExceptions | RuntimeException e) {//如果以上抛出异常，对当前节点之后的节点信息进行回滚
                                 DB.db.rollbackTransaction();
                                 Logger.logDebugMessage(e.toString(), e);
                                 Logger.logDebugMessage("Applying block " + Long.toUnsignedString(currentBlockId) + " at height "

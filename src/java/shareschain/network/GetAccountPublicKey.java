@@ -1,7 +1,7 @@
 
 package shareschain.network;
 
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.account.Account;
 import shareschain.util.Convert;
 import shareschain.util.JSON;
@@ -19,7 +19,7 @@ public final class GetAccountPublicKey extends APIServlet.APIRequestHandler {
     }
 
     @Override
-    protected JSONStreamAware processRequest(HttpServletRequest req) throws ShareschainException {
+    protected JSONStreamAware processRequest(HttpServletRequest req) throws ShareschainExceptions {
 
         long accountId = ParameterParser.getAccountId(req, true);
         byte[] publicKey = Account.getPublicKey(accountId);

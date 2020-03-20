@@ -1,7 +1,7 @@
 
 package shareschain.blockchain;
 
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.database.DBIterator;
 import shareschain.util.Observable;
 
@@ -44,11 +44,11 @@ public interface TransactionProcessor extends Observable<List<? extends Transact
 
     void rebroadcastAllUnconfirmedTransactions();
 
-    void broadcast(Transaction transaction) throws ShareschainException.ValidationException;
+    void broadcast(Transaction transaction) throws ShareschainExceptions.ValidationExceptions;
 
     void broadcastLater(Transaction transaction);
 
-    List<? extends Transaction> processNodeTransactions(List<Transaction> transactions) throws ShareschainException.NotValidException;
+    List<? extends Transaction> processNodeTransactions(List<Transaction> transactions) throws ShareschainExceptions.NotValidExceptions;
 
     void processLater(Collection<? extends SmcTransaction> transactions);
 

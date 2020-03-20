@@ -3,7 +3,7 @@ package shareschain.network;
 
 import shareschain.Constants;
 import shareschain.Shareschain;
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.account.Account;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
@@ -19,7 +19,7 @@ public final class GetEffectiveBalance extends APIServlet.APIRequestHandler {
     }
 
     @Override
-    protected JSONStreamAware processRequest(HttpServletRequest req) throws ShareschainException {
+    protected JSONStreamAware processRequest(HttpServletRequest req) throws ShareschainExceptions {
         long accountId = ParameterParser.getAccountId(req, true);
         int height = ParameterParser.getHeight(req);
         Shareschain.getBlockchain().readLock();

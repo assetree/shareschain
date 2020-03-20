@@ -24,7 +24,7 @@ public final class GetForging extends APIServlet.APIRequestHandler {
     }
 
     @Override
-    protected JSONStreamAware processRequest(HttpServletRequest req) throws ParameterException {
+    protected JSONStreamAware processRequest(HttpServletRequest req) throws ParameterExceptions {
 
         String secretPhrase = ParameterParser.getSecretPhrase(req, false);
         int elapsedTime = Shareschain.getEpochTime() - Shareschain.getBlockchain().getLastBlock().getTimestamp();

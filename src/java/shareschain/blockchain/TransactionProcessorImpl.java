@@ -3,7 +3,7 @@ package shareschain.blockchain;
 
 import shareschain.Constants;
 import shareschain.Shareschain;
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.account.Account;
 import shareschain.database.DBClause;
 import shareschain.database.DBIterator;
@@ -386,10 +386,10 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
     /**
      * 广播交易
      * @param transaction
-     * @throws ShareschainException.ValidationException
+     * @throws ShareschainExceptions.ValidationExceptions
      */
     @Override
-    public void broadcast(Transaction transaction) throws ShareschainException.ValidationException {
+    public void broadcast(Transaction transaction) throws ShareschainExceptions.ValidationExceptions {
         BlockchainImpl.getInstance().writeLock();
         try {
             if (transaction.getChain().getTransactionHome().hasTransaction(transaction)) {//该交易是否在链的表中已经存在
@@ -662,14 +662,14 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
                             processTransaction(unconfirmedTransaction);
                             iterator.remove();
                             addedUnconfirmedTransactions.add(unconfirmedTransaction.getTransaction());
-                        } catch (ShareschainException.ExistingTransactionException e) {
+                        } catch (ShareschainExceptions.ExistingTransactionExceptions e) {
                             iterator.remove();
-                        } catch (ShareschainException.NotCurrentlyValidException e) {
+                        } catch (ShareschainExceptions.NotCurrentlyValidExceptions e) {
                             if (unconfirmedTransaction.getExpiration() < currentTime
                                     || currentTime - Convert.toEpochTime(unconfirmedTransaction.getArrivalTimestamp()) > 3600) {
                                 iterator.remove();
                             }
-                        } catch (ShareschainException.ValidationException | RuntimeException e) {
+                        } catch (ShareschainExceptions.ValidationExceptions | RuntimeException e) {
                             iterator.remove();
                         }
                     }
@@ -692,10 +692,10 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
      * 对节点的交易进行处理，更新数据库，并将广播池中不存在的交易再次像其它节点广播
      * @param transactions
      * @return
-     * @throws ShareschainException.NotValidException
+     * @throws ShareschainExceptions.NotValidExceptions
      */
     @Override
-    public List<TransactionImpl> processNodeTransactions(List<Transaction> transactions) throws ShareschainException.NotValidException {
+    public List<TransactionImpl> processNodeTransactions(List<Transaction> transactions) throws ShareschainExceptions.NotValidExceptions {
         if (Shareschain.getBlockchain().getHeight() <= Constants.LAST_KNOWN_BLOCK && !testUnconfirmedTransactions) {
             return Collections.emptyList();
         }
@@ -724,8 +724,8 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
                 }
                 addedUnconfirmedTransactions.add(transaction);
 
-            } catch (ShareschainException.NotCurrentlyValidException ignore) {
-            } catch (ShareschainException.ValidationException | RuntimeException e) {
+            } catch (ShareschainExceptions.NotCurrentlyValidExceptions ignore) {
+            } catch (ShareschainExceptions.ValidationExceptions | RuntimeException e) {
                 Logger.logDebugMessage(String.format("Invalid transaction from node: %s", inputTransaction.getJSONObject()), e);
                 exceptions.add(e);
             }
@@ -739,7 +739,7 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
         //移除接收到的所有交易
         broadcastedTransactions.removeAll(receivedTransactions);
         if (!exceptions.isEmpty()) {
-            throw new ShareschainException.NotValidException("Node sends invalid transactions: " + exceptions.toString());
+            throw new ShareschainExceptions.NotValidExceptions("Node sends invalid transactions: " + exceptions.toString());
         }
         return addedUnconfirmedTransactions;
     }
@@ -748,23 +748,23 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
      * 处理未确认的交易
      * @param unconfirmedTransaction
      * @return
-     * @throws ShareschainException.ValidationException
+     * @throws ShareschainExceptions.ValidationExceptions
      */
-    private void processTransaction(UnconfirmedTransaction unconfirmedTransaction) throws ShareschainException.ValidationException {
+    private void processTransaction(UnconfirmedTransaction unconfirmedTransaction) throws ShareschainExceptions.ValidationExceptions {
         TransactionImpl transaction = unconfirmedTransaction.getTransaction();
         int curTime = Shareschain.getEpochTime();//获取当前距离2018年1月1日的时间差，单位s
         //交易的到期时间（交易创建时间 + 15分钟）小于curTime，交易过期
         if (transaction.getExpiration() < curTime) {
-            throw new ShareschainException.NotCurrentlyValidException("Expired transaction");
+            throw new ShareschainExceptions.NotCurrentlyValidExceptions("Expired transaction");
         }
         int maxTimestamp = curTime + Constants.MAX_TIMEDRIFT;
         //交易的时间戳是否合法,允许15s的误差
         if (transaction.getTimestamp() > maxTimestamp) {
-            throw new ShareschainException.NotCurrentlyValidException("Transaction timestamp from the future");
+            throw new ShareschainExceptions.NotCurrentlyValidExceptions("Transaction timestamp from the future");
         }
         //验证交易版本号，默认值是1，猜测通过前面区块的高度获取区块交易的版本号，与当前交易版本号是否一致，不过此功能没有实现，都是写死的值1
         if (transaction.getVersion() < 1) {
-            throw new ShareschainException.NotValidException("Invalid transaction version");
+            throw new ShareschainExceptions.NotValidExceptions("Invalid transaction version");
         }
         BlockchainImpl.getInstance().writeLock();
         try {
@@ -772,21 +772,21 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
                 DB.db.beginTransaction();
                 //判断区块高度是否合法，区块高度必须小于系统已知的区块高度，并且不是测试未确认的交易（testUnconfirmedTransactions 配置文件中配置）
                 if (Shareschain.getBlockchain().getHeight() < Constants.LAST_KNOWN_BLOCK && !testUnconfirmedTransactions) {
-                    throw new ShareschainException.NotCurrentlyValidException("Blockchain not ready to accept transactions");
+                    throw new ShareschainExceptions.NotCurrentlyValidExceptions("Blockchain not ready to accept transactions");
                 }
                 //1.如果交易在未确认交易表(unconfirmed_transaction)中已经存在，抛出异常
                 //2.交易如果已经在已完成表(transaction_sctk主链或transaction子链)中存在，抛出异常
                 if (getUnconfirmedTransaction(unconfirmedTransaction.getDBKey()) != null || transaction.getChain().getTransactionHome().hasTransaction(transaction)) {
-                    throw new ShareschainException.ExistingTransactionException("Transaction already processed");
+                    throw new ShareschainExceptions.ExistingTransactionExceptions("Transaction already processed");
                 }
                 //交易id不能为空
                 transaction.validateId();
                 //签名是否合法
                 if (! transaction.verifySignature()) {
                     if (Account.getAccount(transaction.getSenderId()) != null) {
-                        throw new ShareschainException.NotValidException("Transaction signature verification failed");
+                        throw new ShareschainExceptions.NotValidExceptions("Transaction signature verification failed");
                     } else {
-                        throw new ShareschainException.NotCurrentlyValidException("Unknown transaction sender");
+                        throw new ShareschainExceptions.NotCurrentlyValidExceptions("Unknown transaction sender");
                     }
                 }
 
@@ -797,12 +797,12 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
                  * 更新余额表（PUBLIC.BALANCE_SCTK）中发送者的未确认余额unconfirmed_balance字段值
                  */
                 if (! transaction.applyUnconfirmed()) {
-                    throw new ShareschainException.InsufficientBalanceException("Insufficient balance");
+                    throw new ShareschainExceptions.InsufficientBalanceExceptions("Insufficient balance");
                 }
 
 
                 if (transaction.isUnconfirmedDuplicate(unconfirmedDuplicates)) {
-                    throw new ShareschainException.NotCurrentlyValidException("Duplicate unconfirmed transaction");
+                    throw new ShareschainExceptions.NotCurrentlyValidExceptions("Duplicate unconfirmed transaction");
                 }
 
                 //保存交易到未确认的交易表（unconfirmed_transaction）
@@ -824,7 +824,7 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
      * 为ChildBlockSmcTransaction 类型的交易获取更高的交易费用
      * @param transaction
      * @return
-     * @throws ShareschainException.NotCurrentlyValidException
+     * @throws ShareschainExceptions.NotCurrentlyValidExceptions
      */
 
     private static final Comparator<UnconfirmedTransaction> cachedUnconfirmedTransactionComparator = (UnconfirmedTransaction t1, UnconfirmedTransaction t2) -> {

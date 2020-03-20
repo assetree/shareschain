@@ -2,8 +2,8 @@
 package shareschain.network;
 
 import shareschain.Shareschain;
-import shareschain.account.AccountLedger;
-import shareschain.account.AccountLedger.LedgerEntry;
+import shareschain.account.AccountChainLedger;
+import shareschain.account.AccountChainLedger.LedgerEntry;
 import shareschain.blockchain.Block;
 import shareschain.blockchain.BlockchainProcessor;
 import shareschain.blockchain.Transaction;
@@ -119,9 +119,9 @@ class EventListener implements Runnable, AsyncListener, TransactionalDB.Transact
     }
 
     /** Account ledger events - update API comments for EventRegister and EventWait if changed */
-    static final List<AccountLedger.Event> ledgerEvents = new ArrayList<>();
+    static final List<AccountChainLedger.Event> ledgerEvents = new ArrayList<>();
     static {
-        ledgerEvents.add(AccountLedger.Event.ADD_ENTRY);
+        ledgerEvents.add(AccountChainLedger.Event.ADD_ENTRY);
     }
 
     /** Application IP address and registration token */
@@ -641,7 +641,7 @@ class EventListener implements Runnable, AsyncListener, TransactionalDB.Transact
                 eventHandler = new BlockEventHandler(eventRegistration);
             } else if (event instanceof TransactionProcessor.Event) {
                 eventHandler = new TransactionEventHandler(eventRegistration);
-            } else if (event instanceof AccountLedger.Event) {
+            } else if (event instanceof AccountChainLedger.Event) {
                 eventHandler = new LedgerEventHandler(eventRegistration);
             } else {
                 throw new EventListenerException("Unsupported listener event");
@@ -974,7 +974,7 @@ class EventListener implements Runnable, AsyncListener, TransactionalDB.Transact
              */
             @Override
             public void addListener() {
-                AccountLedger.addListener(this, (AccountLedger.Event)event);
+                AccountChainLedger.addListener(this, (AccountChainLedger.Event)event);
             }
 
             /**
@@ -982,7 +982,7 @@ class EventListener implements Runnable, AsyncListener, TransactionalDB.Transact
              */
             @Override
             public void removeListener() {
-                AccountLedger.removeListener(this, (AccountLedger.Event)event);
+                AccountChainLedger.removeListener(this, (AccountChainLedger.Event)event);
             }
 
             /**

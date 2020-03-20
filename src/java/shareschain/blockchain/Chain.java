@@ -1,7 +1,7 @@
 
 package shareschain.blockchain;
 
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.account.BalanceHome;
 import shareschain.network.APIEnum;
 import shareschain.network.APITag;
@@ -115,7 +115,7 @@ public abstract class Chain {
     abstract TransactionImpl.BuilderImpl newTransactionBuilder(byte version, long amount, long fee, short deadline,
                                                                List<Appendix.AbstractAppendix> appendages, ResultSet rs);
 
-    abstract UnconfirmedTransaction newUnconfirmedTransaction(ResultSet rs) throws SQLException, ShareschainException.NotValidException;
+    abstract UnconfirmedTransaction newUnconfirmedTransaction(ResultSet rs) throws SQLException, ShareschainExceptions.NotValidExceptions;
 
     @Override
     public String toString() {

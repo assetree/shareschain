@@ -2,7 +2,7 @@
 package shareschain.network;
 
 import shareschain.Shareschain;
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.blockchain.Block;
 import shareschain.blockchain.Blockchain;
 import shareschain.blockchain.Generator;
@@ -54,7 +54,7 @@ public final class GetNextBlockGenerators extends APIServlet.APIRequestHandler {
     }
 
     @Override
-    protected JSONStreamAware processRequest(HttpServletRequest req) throws ShareschainException {
+    protected JSONStreamAware processRequest(HttpServletRequest req) throws ShareschainExceptions {
         JSONObject response = new JSONObject();
         int limit = Math.max(1, ParameterParser.getInt(req, "limit", 1, Integer.MAX_VALUE, false));
         Blockchain blockchain = Shareschain.getBlockchain();

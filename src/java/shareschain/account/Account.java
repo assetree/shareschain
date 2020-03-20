@@ -1065,27 +1065,27 @@ public final class Account {
         this.publicKey = publicKey;
     }
 
-    public void addToBalance(Chain chain, AccountLedger.LedgerEvent event, AccountLedger.LedgerEventId eventId, long amount, long fee) {
+    public void addToBalance(Chain chain, AccountChainLedger.LedgerEvent event, AccountChainLedger.LedgerEventId eventId, long amount, long fee) {
         chain.getBalanceHome().getBalance(id).addToBalance(event, eventId, amount, fee);
     }
 
-    public void addToUnconfirmedBalance(Chain chain, AccountLedger.LedgerEvent event, AccountLedger.LedgerEventId eventId, long amount, long fee) {
+    public void addToUnconfirmedBalance(Chain chain, AccountChainLedger.LedgerEvent event, AccountChainLedger.LedgerEventId eventId, long amount, long fee) {
         chain.getBalanceHome().getBalance(id).addToUnconfirmedBalance(event, eventId, amount, fee);
     }
 
-    public void addToBalanceAndUnconfirmedBalance(Chain chain, AccountLedger.LedgerEvent event, AccountLedger.LedgerEventId eventId, long amount, long fee) {
+    public void addToBalanceAndUnconfirmedBalance(Chain chain, AccountChainLedger.LedgerEvent event, AccountChainLedger.LedgerEventId eventId, long amount, long fee) {
         chain.getBalanceHome().getBalance(id).addToBalanceAndUnconfirmedBalance(event, eventId, amount, fee);
     }
 
-    public void addToBalance(Chain chain, AccountLedger.LedgerEvent event, AccountLedger.LedgerEventId eventId, long amount) {
+    public void addToBalance(Chain chain, AccountChainLedger.LedgerEvent event, AccountChainLedger.LedgerEventId eventId, long amount) {
         chain.getBalanceHome().getBalance(id).addToBalance(event, eventId, amount);
     }
 
-    public void addToUnconfirmedBalance(Chain chain, AccountLedger.LedgerEvent event, AccountLedger.LedgerEventId eventId, long amount) {
+    public void addToUnconfirmedBalance(Chain chain, AccountChainLedger.LedgerEvent event, AccountChainLedger.LedgerEventId eventId, long amount) {
         chain.getBalanceHome().getBalance(id).addToUnconfirmedBalance(event, eventId, amount);
     }
 
-    public void addToBalanceAndUnconfirmedBalance(Chain chain, AccountLedger.LedgerEvent event, AccountLedger.LedgerEventId eventId, long amount) {
+    public void addToBalanceAndUnconfirmedBalance(Chain chain, AccountChainLedger.LedgerEvent event, AccountChainLedger.LedgerEventId eventId, long amount) {
         chain.getBalanceHome().getBalance(id).addToBalanceAndUnconfirmedBalance(event, eventId, amount);
     }
 

@@ -2,7 +2,7 @@ package shareschain.node;
 
 import shareschain.Constants;
 import shareschain.Shareschain;
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.blockchain.BlockchainProcessor;
 import shareschain.blockchain.ChainTransactionId;
 import shareschain.blockchain.Transaction;
@@ -112,7 +112,7 @@ public final class TransactionsInventory {
                             List<? extends Transaction> addedTransactions = Shareschain.getTransactionProcessor().processNodeTransactions(transactions);
                             cacheTransactions(addedTransactions);//缓存已经处理过的交易列表
                             notAcceptedTransactions.removeAll(addedTransactions);//从未接受的交易列表中移除已经广播的交易
-                        } catch (RuntimeException | ShareschainException.ValidationException e) {
+                        } catch (RuntimeException | ShareschainExceptions.ValidationExceptions e) {
                             //将该节点加入黑名单中,断开链接，并通知其它节点
                             feederNode.blacklist(e);
                         }
@@ -132,7 +132,7 @@ public final class TransactionsInventory {
                     //some not currently valid transactions may have become valid as others were fetched from Nodes, try processing them again
                     List<? extends Transaction> addedTransactions = Shareschain.getTransactionProcessor().processNodeTransactions(new ArrayList<>(notCurrentlyValidTransactions.values()));
                     addedTransactions.forEach(transaction -> notCurrentlyValidTransactions.remove(ChainTransactionId.getChainTransactionId(transaction)));
-                } catch (ShareschainException.NotValidException e) {
+                } catch (ShareschainExceptions.NotValidExceptions e) {
                     Logger.logErrorMessage(e.getMessage(), e); //should not happen
                 }
             } finally {

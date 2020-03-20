@@ -34,7 +34,7 @@ import java.util.TreeSet;
 /**
  * Maintain a ledger of changes to selected accounts
  */
-public class AccountLedger {
+public class AccountChainLedger {
 
     /** Account ledger is enabled */
     private static final boolean ledgerEnabled;

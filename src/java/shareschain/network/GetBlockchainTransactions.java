@@ -2,7 +2,7 @@
 package shareschain.network;
 
 import shareschain.Shareschain;
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.blockchain.Chain;
 import shareschain.blockchain.Mainchain;
 import shareschain.blockchain.Transaction;
@@ -24,7 +24,7 @@ public final class GetBlockchainTransactions extends APIServlet.APIRequestHandle
     }
 
     @Override
-    protected JSONStreamAware processRequest(HttpServletRequest req) throws ShareschainException {
+    protected JSONStreamAware processRequest(HttpServletRequest req) throws ShareschainExceptions {
 
         long accountId = ParameterParser.getAccountId(req, true);
         int timestamp = ParameterParser.getTimestamp(req);

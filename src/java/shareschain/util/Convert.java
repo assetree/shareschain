@@ -2,14 +2,13 @@
 package shareschain.util;
 
 import shareschain.Constants;
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.util.crypto.Crypto;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -18,7 +17,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -249,9 +247,9 @@ public final class Convert {
         return bytes;
     }
 
-    public static String readString(ByteBuffer buffer, int numBytes, int maxLength) throws ShareschainException.NotValidException {
+    public static String readString(ByteBuffer buffer, int numBytes, int maxLength) throws ShareschainExceptions.NotValidExceptions {
         if (numBytes > 3 * maxLength) {
-            throw new ShareschainException.NotValidException("Max parameter length exceeded");
+            throw new ShareschainExceptions.NotValidExceptions("Max parameter length exceeded");
         }
         byte[] bytes = new byte[numBytes];
         buffer.get(bytes);

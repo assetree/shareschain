@@ -137,7 +137,7 @@ public final class DBShellServlet extends HttpServlet {
                     if ("true".equals(req.getParameter("showShell"))) {
                         body = form.replace("{adminPassword}", URLEncoder.encode(req.getParameter("adminPassword"), "UTF-8") );
                     }
-                } catch (ParameterException exc) {
+                } catch (ParameterExceptions exc) {
                     String desc = (String)((JSONObject)JSONValue.parse(JSON.toString(exc.getErrorResponse()))).get("errorDescription");
                     body = String.format(passwordFormTemplate, "<p style=\"color:red\">" + desc + "</p>");
                 }

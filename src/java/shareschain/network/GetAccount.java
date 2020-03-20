@@ -2,7 +2,7 @@
 package shareschain.network;
 
 import shareschain.Shareschain;
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.account.Account;
 import shareschain.database.DBIterator;
 import shareschain.util.Convert;
@@ -21,7 +21,7 @@ public final class GetAccount extends APIServlet.APIRequestHandler {
     }
 
     @Override
-    protected JSONStreamAware processRequest(HttpServletRequest req) throws ShareschainException {
+    protected JSONStreamAware processRequest(HttpServletRequest req) throws ShareschainExceptions {
 
         boolean includeLessors = "true".equalsIgnoreCase(req.getParameter("includeLessors"));
         boolean includeAssets = "true".equalsIgnoreCase(req.getParameter("includeAssets"));

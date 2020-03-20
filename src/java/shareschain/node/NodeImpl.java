@@ -3,7 +3,7 @@ package shareschain.node;
 
 import shareschain.Constants;
 import shareschain.Shareschain;
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.blockchain.BlockchainProcessor;
 import shareschain.network.API;
 import shareschain.network.APIEnum;
@@ -517,8 +517,8 @@ final class NodeImpl implements Node {
      */
     @Override
     public void blacklist(Exception cause) {
-        if (cause instanceof ShareschainException.NotCurrentlyValidException
-                || cause instanceof BlockchainProcessor.BlockOutOfOrderException
+        if (cause instanceof ShareschainExceptions.NotCurrentlyValidExceptions
+                || cause instanceof BlockchainProcessor.BlockOutOfOrderExceptions
                 || cause instanceof SQLException || cause.getCause() instanceof SQLException) {
             // don't blacklist nodes just because a feature is not yet enabled, or because of database timeouts
             // prevents erroneous blacklisting during loading of blockchain from scratch

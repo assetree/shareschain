@@ -1,14 +1,14 @@
 
 package shareschain.network;
 
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import org.json.simple.JSONStreamAware;
 
-public final class ParameterException extends ShareschainException {
+public final class ParameterExceptions extends ShareschainExceptions {
 
     private final JSONStreamAware errorResponse;
 
-    ParameterException(JSONStreamAware errorResponse) {
+    ParameterExceptions(JSONStreamAware errorResponse) {
         this.errorResponse = errorResponse;
     }
 

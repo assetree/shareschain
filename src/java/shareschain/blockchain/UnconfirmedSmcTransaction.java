@@ -1,11 +1,10 @@
 
 package shareschain.blockchain;
 
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 
 final class UnconfirmedSmcTransaction extends UnconfirmedTransaction implements SmcTransaction {
 
@@ -13,7 +12,7 @@ final class UnconfirmedSmcTransaction extends UnconfirmedTransaction implements 
         super(transaction, arrivalTimestamp, true);
     }
 
-    UnconfirmedSmcTransaction(ResultSet rs) throws SQLException, ShareschainException.NotValidException {
+    UnconfirmedSmcTransaction(ResultSet rs) throws SQLException, ShareschainExceptions.NotValidExceptions {
         super(TransactionImpl.newTransactionBuilder(rs.getBytes("transaction_bytes")), rs);
     }
 
@@ -23,7 +22,7 @@ final class UnconfirmedSmcTransaction extends UnconfirmedTransaction implements 
     }
 
     @Override
-    public void validate() throws ShareschainException.ValidationException {
+    public void validate() throws ShareschainExceptions.ValidationExceptions {
         super.validate();
     }
 }

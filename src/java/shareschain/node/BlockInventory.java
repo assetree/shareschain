@@ -2,7 +2,7 @@ package shareschain.node;
 
 import shareschain.Constants;
 import shareschain.Shareschain;
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.blockchain.Block;
 import shareschain.blockchain.BlockchainProcessor;
 import shareschain.blockchain.ChainTransactionId;
@@ -133,13 +133,13 @@ final class BlockInventory {
                                 Shareschain.getBlockchainProcessor().processNodeBlocks(blockList);
                             }
                         }
-                    } catch (BlockchainProcessor.BlockOutOfOrderException | BlockchainProcessor.BlockOfLowerDifficultyException ignore) {}
+                    } catch (BlockchainProcessor.BlockOutOfOrderExceptions | BlockchainProcessor.BlockOfLowerDifficultyExceptions ignore) {}
                     if (block.getTimestamp() < Shareschain.getEpochTime() + Constants.MAX_TIMEDRIFT) {
                         blockCache.put(block.getId(), block);
                     }
                     int now = Shareschain.getEpochTime();
                     blockCache.values().removeIf(cacheBlock -> cacheBlock.getTimestamp() < now - 10 * 60);
-                } catch (ShareschainException | RuntimeException e) {
+                } catch (ShareschainExceptions | RuntimeException e) {
                     if (feederNode != null) {
                         feederNode.blacklist(e);
                     }

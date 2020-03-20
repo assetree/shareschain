@@ -1,7 +1,7 @@
 
 package shareschain.blockchain;
 
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.account.Account;
 import org.json.simple.JSONObject;
 
@@ -31,8 +31,8 @@ public interface Appendix {
     }
 
     interface Parser {
-        AbstractAppendix parse(ByteBuffer buffer) throws ShareschainException.NotValidException;
-        AbstractAppendix parse(JSONObject attachmentData) throws ShareschainException.NotValidException;
+        AbstractAppendix parse(ByteBuffer buffer) throws ShareschainExceptions.NotValidExceptions;
+        AbstractAppendix parse(JSONObject attachmentData) throws ShareschainExceptions.NotValidExceptions;
     }
 
     abstract class AbstractAppendix implements Appendix {
@@ -127,11 +127,11 @@ public interface Appendix {
             return height >= getNextFeeHeight() ? getNextFee(transaction) : getBaselineFee(transaction);
         }
 
-        public abstract void validate(Transaction transaction) throws ShareschainException.ValidationException;
+        public abstract void validate(Transaction transaction) throws ShareschainExceptions.ValidationExceptions;
 
-        public void validateId(Transaction transaction) throws ShareschainException.ValidationException {}
+        public void validateId(Transaction transaction) throws ShareschainExceptions.ValidationExceptions {}
 
-        public void validateAtFinish(Transaction transaction) throws ShareschainException.ValidationException {
+        public void validateAtFinish(Transaction transaction) throws ShareschainExceptions.ValidationExceptions {
             validate(transaction);
         }
 

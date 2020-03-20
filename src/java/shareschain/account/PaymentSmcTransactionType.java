@@ -2,7 +2,7 @@
 package shareschain.account;
 
 import shareschain.Constants;
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.blockchain.Attachment;
 import shareschain.blockchain.SmcTransactionImpl;
 import shareschain.blockchain.SmcTransactionType;
@@ -47,8 +47,8 @@ public abstract class PaymentSmcTransactionType extends SmcTransactionType {
         }
 
         @Override
-        public final AccountLedger.LedgerEvent getLedgerEvent() {
-            return AccountLedger.LedgerEvent.SMC_PAYMENT;
+        public final AccountChainLedger.LedgerEvent getLedgerEvent() {
+            return AccountChainLedger.LedgerEvent.SMC_PAYMENT;
         }
 
         @Override
@@ -69,12 +69,12 @@ public abstract class PaymentSmcTransactionType extends SmcTransactionType {
         /**
          * 验证交易的数量是否合法，是否大于允许的最大值
          * @param transaction
-         * @throws ShareschainException.ValidationException
+         * @throws ShareschainExceptions.ValidationExceptions
          */
         @Override
-        protected void validateAttachment(SmcTransactionImpl transaction) throws ShareschainException.ValidationException {
+        protected void validateAttachment(SmcTransactionImpl transaction) throws ShareschainExceptions.ValidationExceptions {
             if (transaction.getAmount() <= 0 || transaction.getAmount() >= Constants.MAX_BALANCE_KER) {
-                throw new ShareschainException.NotValidException("Invalid ordinary payment");
+                throw new ShareschainExceptions.NotValidExceptions("Invalid ordinary payment");
             }
         }
 

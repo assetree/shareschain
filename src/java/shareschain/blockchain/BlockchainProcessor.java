@@ -1,7 +1,7 @@
 
 package shareschain.blockchain;
 
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.database.DerivedDBTable;
 import shareschain.node.Node;
 import shareschain.util.JSON;
@@ -36,9 +36,9 @@ public interface BlockchainProcessor extends Observable<Block,BlockchainProcesso
 
     int getInitialScanHeight();
 
-    void processNodeBlock(Block inputBlock) throws ShareschainException;
+    void processNodeBlock(Block inputBlock) throws ShareschainExceptions;
 
-    void processNodeBlocks(List<Block> inputBlocks) throws ShareschainException;
+    void processNodeBlocks(List<Block> inputBlocks) throws ShareschainExceptions;
 
     void fullReset();
 
@@ -56,16 +56,16 @@ public interface BlockchainProcessor extends Observable<Block,BlockchainProcesso
 
     long getGenesisBlockId();
 
-    class BlockNotAcceptedException extends ShareschainException {
+    class BlockNotAcceptedExceptions extends ShareschainExceptions {
 
         private final BlockImpl block;
 
-        public BlockNotAcceptedException(String message, BlockImpl block) {
+        public BlockNotAcceptedExceptions(String message, BlockImpl block) {
             super(message);
             this.block = block;
         }
 
-        public BlockNotAcceptedException(Throwable cause, BlockImpl block) {
+        public BlockNotAcceptedExceptions(Throwable cause, BlockImpl block) {
             super(cause);
             this.block = block;
         }
@@ -77,16 +77,16 @@ public interface BlockchainProcessor extends Observable<Block,BlockchainProcesso
 
     }
 
-    class TransactionNotAcceptedException extends BlockNotAcceptedException {
+    class TransactionNotAcceptedExceptions extends BlockNotAcceptedExceptions {
 
         private final TransactionImpl transaction;
 
-        TransactionNotAcceptedException(String message, TransactionImpl transaction) {
+        TransactionNotAcceptedExceptions(String message, TransactionImpl transaction) {
             super(message, transaction.getBlock());
             this.transaction = transaction;
         }
 
-        TransactionNotAcceptedException(Throwable cause, TransactionImpl transaction) {
+        TransactionNotAcceptedExceptions(Throwable cause, TransactionImpl transaction) {
             super(cause, transaction.getBlock());
             this.transaction = transaction;
         }
@@ -102,17 +102,17 @@ public interface BlockchainProcessor extends Observable<Block,BlockchainProcesso
         }
     }
 
-    class BlockOutOfOrderException extends BlockNotAcceptedException {
+    class BlockOutOfOrderExceptions extends BlockNotAcceptedExceptions {
 
-        public BlockOutOfOrderException(String message, BlockImpl block) {
+        public BlockOutOfOrderExceptions(String message, BlockImpl block) {
             super(message, block);
         }
 
 	}
 
-	class BlockOfLowerDifficultyException extends BlockNotAcceptedException {
+	class BlockOfLowerDifficultyExceptions extends BlockNotAcceptedExceptions {
 
-        public BlockOfLowerDifficultyException(BlockImpl block) {
+        public BlockOfLowerDifficultyExceptions(BlockImpl block) {
             super("Lower cumulative difficulty", block);
         }
 

@@ -2,7 +2,7 @@
 package shareschain.network;
 
 import shareschain.Shareschain;
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.account.Account;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
@@ -18,7 +18,7 @@ public final class GetGuaranteedBalance extends APIServlet.APIRequestHandler {
     }
 
     @Override
-    protected JSONStreamAware processRequest(HttpServletRequest req) throws ShareschainException {
+    protected JSONStreamAware processRequest(HttpServletRequest req) throws ShareschainExceptions {
 
         Account account = ParameterParser.getAccount(req);
         int numberOfConfirmations = ParameterParser.getNumberOfConfirmations(req);

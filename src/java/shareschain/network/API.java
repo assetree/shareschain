@@ -356,12 +356,12 @@ public final class API {
         }
     }
 
-    public static void verifyPassword(HttpServletRequest req) throws ParameterException {
+    public static void verifyPassword(HttpServletRequest req) throws ParameterExceptions {
         if (API.disableAdminPassword) {
             return;
         }
         if (API.adminPassword.isEmpty()) {
-            throw new ParameterException(NO_PASSWORD_IN_CONFIG);
+            throw new ParameterExceptions(NO_PASSWORD_IN_CONFIG);
         }
         checkOrLockPassword(req);
     }
@@ -379,7 +379,7 @@ public final class API {
         try {
             checkOrLockPassword(req);
             return true;
-        } catch (ParameterException e) {
+        } catch (ParameterExceptions e) {
             return false;
         }
     }
@@ -390,7 +390,7 @@ public final class API {
         private int time;
     }
 
-    private static void checkOrLockPassword(HttpServletRequest req) throws ParameterException {
+    private static void checkOrLockPassword(HttpServletRequest req) throws ParameterExceptions {
         int now = Shareschain.getEpochTime();
         String remoteHost = null;
         if (forwardedForHeader != null) {
@@ -403,7 +403,7 @@ public final class API {
             PasswordCount passwordCount = incorrectPasswords.get(remoteHost);
             if (passwordCount != null && passwordCount.count >= 25 && now - passwordCount.time < 60*60) {
                 Logger.logWarningMessage("Too many incorrect admin password attempts from " + remoteHost);
-                throw new ParameterException(LOCKED_ADMIN_PASSWORD);
+                throw new ParameterExceptions(LOCKED_ADMIN_PASSWORD);
             }
             String adminPassword = Convert.nullToEmpty(req.getParameter("adminPassword"));
             if (!API.adminPassword.equals(adminPassword)) {
@@ -421,9 +421,9 @@ public final class API {
                     passwordCount.count++;
                     passwordCount.time = now;
                     Logger.logWarningMessage("Incorrect adminPassword from " + remoteHost);
-                    throw new ParameterException(INCORRECT_ADMIN_PASSWORD);
+                    throw new ParameterExceptions(INCORRECT_ADMIN_PASSWORD);
                 } else {
-                    throw new ParameterException(MISSING_ADMIN_PASSWORD);
+                    throw new ParameterExceptions(MISSING_ADMIN_PASSWORD);
                 }
             }
             if (passwordCount != null) {

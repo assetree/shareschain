@@ -3,7 +3,7 @@ package shareschain.network;
 
 import shareschain.Constants;
 import shareschain.Shareschain;
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.blockchain.Chain;
 import shareschain.database.DB;
 import shareschain.util.JSON;
@@ -80,9 +80,9 @@ public final class APIServlet extends HttpServlet {
             return false;
         }
 
-        protected abstract JSONStreamAware processRequest(HttpServletRequest request) throws ShareschainException;
+        protected abstract JSONStreamAware processRequest(HttpServletRequest request) throws ShareschainExceptions;
 
-        protected JSONStreamAware processRequest(HttpServletRequest request, HttpServletResponse response) throws ShareschainException {
+        protected JSONStreamAware processRequest(HttpServletRequest request, HttpServletResponse response) throws ShareschainExceptions {
             return processRequest(request);
         }
 
@@ -282,9 +282,9 @@ public final class APIServlet extends HttpServlet {
                     Shareschain.getBlockchain().readUnlock();
                 }
             }
-        } catch (ParameterException e) {
+        } catch (ParameterExceptions e) {
             response = e.getErrorResponse();
-        } catch (ShareschainException | RuntimeException e) {
+        } catch (ShareschainExceptions | RuntimeException e) {
             Logger.logDebugMessage("Error processing API request", e);
             JSONObject json = new JSONObject();
             JSONData.putException(json, e);

@@ -1,14 +1,14 @@
 
 package shareschain.blockchain;
 
-import shareschain.ShareschainException;
-import shareschain.account.AccountLedger;
+import shareschain.ShareschainExceptions;
+import shareschain.account.AccountChainLedger;
 import shareschain.util.Filter;
 import org.json.simple.JSONObject;
 
 import java.util.List;
 
-public interface Transaction extends AccountLedger.LedgerEventId {
+public interface Transaction extends AccountChainLedger.LedgerEventId {
 
     interface Builder {
 
@@ -22,9 +22,9 @@ public interface Transaction extends AccountLedger.LedgerEventId {
 
         Builder appendix(Appendix appendix);
 
-        Transaction build() throws ShareschainException.NotValidException;
+        Transaction build() throws ShareschainExceptions.NotValidExceptions;
 
-        Transaction build(String secretPhrase) throws ShareschainException.NotValidException;
+        Transaction build(String secretPhrase) throws ShareschainExceptions.NotValidExceptions;
 
     }
 
@@ -72,7 +72,7 @@ public interface Transaction extends AccountLedger.LedgerEventId {
 
     boolean verifySignature();
 
-    void validate() throws ShareschainException.ValidationException;
+    void validate() throws ShareschainExceptions.ValidationExceptions;
 
     byte[] getBytes();
 

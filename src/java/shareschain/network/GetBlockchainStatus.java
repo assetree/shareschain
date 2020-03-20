@@ -3,7 +3,7 @@ package shareschain.network;
 
 import shareschain.Constants;
 import shareschain.Shareschain;
-import shareschain.account.AccountLedger;
+import shareschain.account.AccountChainLedger;
 import shareschain.blockchain.Block;
 import shareschain.blockchain.BlockchainProcessor;
 import shareschain.node.Node;
@@ -43,7 +43,7 @@ public final class GetBlockchainStatus extends APIServlet.APIRequestHandler {
         response.put("maxPrunableLifetime", Constants.MAX_PRUNABLE_LIFETIME);
         response.put("includeExpiredPrunable", Constants.INCLUDE_EXPIRED_PRUNABLE);
         response.put("correctInvalidFees", Constants.correctInvalidFees);
-        response.put("ledgerTrimKeep", AccountLedger.trimKeep);
+        response.put("ledgerTrimKeep", AccountChainLedger.trimKeep);
         JSONArray servicesArray = new JSONArray();
         Nodes.getServices().forEach(service -> servicesArray.add(service.name()));
         response.put("services", servicesArray);

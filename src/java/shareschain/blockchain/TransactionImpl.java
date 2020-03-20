@@ -3,7 +3,7 @@ package shareschain.blockchain;
 
 import shareschain.Constants;
 import shareschain.Shareschain;
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.account.Account;
 import shareschain.util.crypto.Crypto;
 import shareschain.util.Convert;
@@ -104,10 +104,10 @@ public abstract class TransactionImpl implements Transaction {
         }
 
         @Override
-        public abstract TransactionImpl build() throws ShareschainException.NotValidException;
+        public abstract TransactionImpl build() throws ShareschainExceptions.NotValidExceptions;
 
         @Override
-        public abstract TransactionImpl build(String secretPhrase) throws ShareschainException.NotValidException;
+        public abstract TransactionImpl build(String secretPhrase) throws ShareschainExceptions.NotValidExceptions;
 
         @Override
         public final BuilderImpl recipientId(long recipientId) {
@@ -193,7 +193,7 @@ public abstract class TransactionImpl implements Transaction {
             return type;
         }
 
-        final BuilderImpl prunableAttachments(JSONObject prunableAttachments) throws ShareschainException.NotValidException {
+        final BuilderImpl prunableAttachments(JSONObject prunableAttachments) throws ShareschainExceptions.NotValidExceptions {
             if (prunableAttachments != null) {
                 for (Appendix.Parser parser : AppendixParsers.getPrunableParsers()) {
                     appendix(parser.parse(prunableAttachments));
@@ -616,57 +616,57 @@ public abstract class TransactionImpl implements Transaction {
      * 4.交易费用是否大于允许的最大余额
      * 5.交易币的数量是否合法
      * 6.类型是否合法
-     * @throws ShareschainException.ValidationException
+     * @throws ShareschainExceptions.ValidationExceptions
      */
     @Override
-    public void validate() throws ShareschainException.ValidationException {
+    public void validate() throws ShareschainExceptions.ValidationExceptions {
         if (timestamp <= 0 || deadline < 1 || getFee() < 0
                 || getFee() > Constants.MAX_BALANCE_KER
                 || amount < 0
                 || amount > Constants.MAX_BALANCE_KER
                 || type == null) {
-            throw new ShareschainException.NotValidException("Invalid transaction parameters:\n type: " + type + ", timestamp: " + timestamp
+            throw new ShareschainExceptions.NotValidExceptions("Invalid transaction parameters:\n type: " + type + ", timestamp: " + timestamp
                     + ", deadline: " + deadline + ", fee: " + getFee() + ", amount: " + amount);
         }
         //SmcPayment type: -2, subtype: 0 ORDINARY
         if (attachment == null || type != attachment.getTransactionType()) {
-            throw new ShareschainException.NotValidException("Invalid attachment " + attachment + " for transaction of type " + type);
+            throw new ShareschainExceptions.NotValidExceptions("Invalid attachment " + attachment + " for transaction of type " + type);
         }
 
         if (!type.canHaveRecipient()) {
             if (recipientId != 0 || getAmount() != 0) {
-                throw new ShareschainException.NotValidException("Transactions of this type must have recipient == 0, amount == 0");
+                throw new ShareschainExceptions.NotValidExceptions("Transactions of this type must have recipient == 0, amount == 0");
             }
         }
 
         if (type.mustHaveRecipient()) {//是否必须有接收人
             if (recipientId == 0) {
-                throw new ShareschainException.NotValidException("Transactions of this type must have a valid recipient");
+                throw new ShareschainExceptions.NotValidExceptions("Transactions of this type must have a valid recipient");
             }
         }
 
     }
 
-    void validateId() throws ShareschainException.ValidationException {
+    void validateId() throws ShareschainExceptions.ValidationExceptions {
         if (getId() == 0L) {
-            throw new ShareschainException.NotValidException("Invalid transaction id 0");
+            throw new ShareschainExceptions.NotValidExceptions("Invalid transaction id 0");
         }
     }
 
     //验证已知区块高度和当前区块高度
-    final void validateEcBlock() throws ShareschainException.ValidationException {
+    final void validateEcBlock() throws ShareschainExceptions.ValidationExceptions {
         if (ecBlockId != 0) {
             if (Shareschain.getBlockchain().getHeight() < ecBlockHeight) {//当前区块链的高度与已知最后区块高度对比
-                throw new ShareschainException.NotCurrentlyValidException("ecBlockHeight " + ecBlockHeight
+                throw new ShareschainExceptions.NotCurrentlyValidExceptions("ecBlockHeight " + ecBlockHeight
                         + " exceeds blockchain height " + Shareschain.getBlockchain().getHeight());
             }
             if (BlockDB.findBlockIdAtHeight(ecBlockHeight) != ecBlockId) {//根据区块高度获取区块id，与已知最后的区块高度是否一致
-                throw new ShareschainException.NotCurrentlyValidException("ecBlockHeight " + ecBlockHeight
+                throw new ShareschainExceptions.NotCurrentlyValidExceptions("ecBlockHeight " + ecBlockHeight
                         + " does not match ecBlockId " + Long.toUnsignedString(ecBlockId)
                         + ", transaction was generated on a fork");
             }
         } else {
-            throw new ShareschainException.NotValidException("To prevent transaction replay attacks, using ecBlockId=0 is no longer allowed.");
+            throw new ShareschainExceptions.NotValidExceptions("To prevent transaction replay attacks, using ecBlockId=0 is no longer allowed.");
         }
     }
 
@@ -747,23 +747,23 @@ public abstract class TransactionImpl implements Transaction {
 
     abstract UnconfirmedTransaction newUnconfirmedTransaction(long arrivalTime, boolean isBundled);
 
-    public static TransactionImpl parseTransaction(byte[] transactionBytes) throws ShareschainException.NotValidException {
+    public static TransactionImpl parseTransaction(byte[] transactionBytes) throws ShareschainExceptions.NotValidExceptions {
         TransactionImpl transaction = newTransactionBuilder(transactionBytes).build();
         if (transaction.getSignature() != null && !transaction.checkSignature()) {
-            throw new ShareschainException.NotValidException("Invalid transaction signature for transaction " + JSON.toJSONString(transaction.getJSONObject()));
+            throw new ShareschainExceptions.NotValidExceptions("Invalid transaction signature for transaction " + JSON.toJSONString(transaction.getJSONObject()));
         }
         return transaction;
     }
 
-    public static TransactionImpl parseTransaction(byte[] transactionBytes, JSONObject prunableAttachments) throws ShareschainException.NotValidException {
+    public static TransactionImpl parseTransaction(byte[] transactionBytes, JSONObject prunableAttachments) throws ShareschainExceptions.NotValidExceptions {
         TransactionImpl transaction = newTransactionBuilder(transactionBytes, prunableAttachments).build();
         if (transaction.getSignature() != null && !transaction.checkSignature()) {
-            throw new ShareschainException.NotValidException("Invalid transaction signature for transaction " + JSON.toJSONString(transaction.getJSONObject()));
+            throw new ShareschainExceptions.NotValidExceptions("Invalid transaction signature for transaction " + JSON.toJSONString(transaction.getJSONObject()));
         }
         return transaction;
     }
 
-    static TransactionImpl loadTransaction(Chain chain, ResultSet rs) throws ShareschainException.NotValidException {
+    static TransactionImpl loadTransaction(Chain chain, ResultSet rs) throws ShareschainExceptions.NotValidExceptions {
         try {
             byte type = rs.getByte("type");
             byte subtype = rs.getByte("subtype");
@@ -815,7 +815,7 @@ public abstract class TransactionImpl implements Transaction {
         }
     }
 
-    public static TransactionImpl.BuilderImpl newTransactionBuilder(byte[] bytes) throws ShareschainException.NotValidException {
+    public static TransactionImpl.BuilderImpl newTransactionBuilder(byte[] bytes) throws ShareschainExceptions.NotValidExceptions {
         try {
             ByteBuffer buffer = ByteBuffer.wrap(bytes);
             buffer.order(ByteOrder.LITTLE_ENDIAN);
@@ -837,7 +837,7 @@ public abstract class TransactionImpl implements Transaction {
             long ecBlockId = buffer.getLong();
             TransactionType transactionType = TransactionType.findTransactionType(type, subtype);
             if (transactionType == null) {
-                throw new ShareschainException.NotValidException("Invalid transaction type: " + type + ", " + subtype);
+                throw new ShareschainExceptions.NotValidExceptions("Invalid transaction type: " + type + ", " + subtype);
             }
             List<Appendix.AbstractAppendix> appendages = getAppendages(transactionType, buffer);
             TransactionImpl.BuilderImpl builder = Chain.getChain(chainId).newTransactionBuilder(version, senderPublicKey, amount, fee, deadline,
@@ -850,22 +850,22 @@ public abstract class TransactionImpl implements Transaction {
                 builder.recipientId(recipientId);
             }
             if (buffer.hasRemaining()) {
-                throw new ShareschainException.NotValidException("Transaction bytes too long, " + buffer.remaining() + " extra bytes");
+                throw new ShareschainExceptions.NotValidExceptions("Transaction bytes too long, " + buffer.remaining() + " extra bytes");
             }
             return builder;
-        } catch (ShareschainException.NotValidException|RuntimeException e) {
+        } catch (ShareschainExceptions.NotValidExceptions |RuntimeException e) {
             Logger.logDebugMessage("Failed to parse transaction bytes: " + Convert.toHexString(bytes));
             throw e;
         }
     }
 
-    public static TransactionImpl.BuilderImpl newTransactionBuilder(byte[] bytes, JSONObject prunableAttachments) throws ShareschainException.NotValidException {
+    public static TransactionImpl.BuilderImpl newTransactionBuilder(byte[] bytes, JSONObject prunableAttachments) throws ShareschainExceptions.NotValidExceptions {
         TransactionImpl.BuilderImpl builder = newTransactionBuilder(bytes);
         builder.prunableAttachments(prunableAttachments);
         return builder;
     }
 
-    public static TransactionImpl.BuilderImpl newTransactionBuilder(JSONObject transactionData) throws ShareschainException.NotValidException {
+    public static TransactionImpl.BuilderImpl newTransactionBuilder(JSONObject transactionData) throws ShareschainExceptions.NotValidExceptions {
         try {
             int chainId = ((Long) transactionData.get("chain")).intValue();
             byte type = ((Long) transactionData.get("type")).byteValue();
@@ -883,7 +883,7 @@ public abstract class TransactionImpl implements Transaction {
 
             TransactionType transactionType = TransactionType.findTransactionType(type, subtype);
             if (transactionType == null) {
-                throw new ShareschainException.NotValidException("Invalid transaction type: " + type + ", " + subtype);
+                throw new ShareschainExceptions.NotValidExceptions("Invalid transaction type: " + type + ", " + subtype);
             }
             List<Appendix.AbstractAppendix> appendages = new ArrayList<>();
             appendages.add(transactionType.parseAttachment(attachmentData));
@@ -906,13 +906,13 @@ public abstract class TransactionImpl implements Transaction {
                 builder.recipientId(recipientId);
             }
             return builder;
-        } catch (ShareschainException.NotValidException|RuntimeException e) {
+        } catch (ShareschainExceptions.NotValidExceptions |RuntimeException e) {
             Logger.logDebugMessage("Failed to parse transaction: " + JSON.toJSONString(transactionData));
             throw e;
         }
     }
 
-    static List<Appendix.AbstractAppendix> getAppendages(TransactionType transactionType, ByteBuffer buffer) throws ShareschainException.NotValidException {
+    static List<Appendix.AbstractAppendix> getAppendages(TransactionType transactionType, ByteBuffer buffer) throws ShareschainExceptions.NotValidExceptions {
         if (buffer == null) {
             return Collections.singletonList(transactionType.parseAttachment(buffer));
         }

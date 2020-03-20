@@ -2,7 +2,7 @@
 package shareschain;
 
 import shareschain.account.Account;
-import shareschain.account.AccountLedger;
+import shareschain.account.AccountChainLedger;
 import shareschain.blockchain.*;
 import shareschain.blockchain.SmcTransaction;
 import shareschain.util.crypto.Crypto;
@@ -292,28 +292,28 @@ public final class Shareschain {
     }
 
     // 分析区块
-    public static Block parseBlock(byte[] blockBytes, List<? extends SmcTransaction> blockTransactions) throws ShareschainException.NotValidException {
+    public static Block parseBlock(byte[] blockBytes, List<? extends SmcTransaction> blockTransactions) throws ShareschainExceptions.NotValidExceptions {
         return BlockImpl.parseBlock(blockBytes, blockTransactions);
     }
 
     // 分析交易
-    public static Transaction parseTransaction(byte[] transactionBytes) throws ShareschainException.NotValidException {
+    public static Transaction parseTransaction(byte[] transactionBytes) throws ShareschainExceptions.NotValidExceptions {
         return TransactionImpl.parseTransaction(transactionBytes);
     }
 
 
     // 创建一个交易构造器
-    public static Transaction.Builder newTransactionBuilder(byte[] transactionBytes) throws ShareschainException.NotValidException {
+    public static Transaction.Builder newTransactionBuilder(byte[] transactionBytes) throws ShareschainExceptions.NotValidExceptions {
         return TransactionImpl.newTransactionBuilder(transactionBytes);
     }
 
     // 创建一个交易构造器（重载）
-    public static Transaction.Builder newTransactionBuilder(JSONObject transactionJSON) throws ShareschainException.NotValidException {
+    public static Transaction.Builder newTransactionBuilder(JSONObject transactionJSON) throws ShareschainExceptions.NotValidExceptions {
         return TransactionImpl.newTransactionBuilder(transactionJSON);
     }
 
     // 创建一个交易构造器（重载）
-    public static Transaction.Builder newTransactionBuilder(byte[] transactionBytes, JSONObject prunableAttachments) throws ShareschainException.NotValidException {
+    public static Transaction.Builder newTransactionBuilder(byte[] transactionBytes, JSONObject prunableAttachments) throws ShareschainExceptions.NotValidExceptions {
         return TransactionImpl.newTransactionBuilder(transactionBytes, prunableAttachments);
     }
 
@@ -401,7 +401,7 @@ public final class Shareschain {
                 Account.init();
 
                 // 账户相关的账本
-                AccountLedger.init();
+                AccountChainLedger.init();
 
                 // 网络处理，manage inbound and outbound connections
                 NetworkHandler.init();

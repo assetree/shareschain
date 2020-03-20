@@ -1,9 +1,9 @@
 
 package shareschain.blockchain;
 
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.account.Account;
-import shareschain.account.AccountLedger.LedgerEvent;
+import shareschain.account.AccountChainLedger.LedgerEvent;
 import org.json.simple.JSONObject;
 
 import java.nio.ByteBuffer;
@@ -25,11 +25,11 @@ public abstract class TransactionType {
 
     public abstract LedgerEvent getLedgerEvent();
 
-    public abstract Attachment.AbstractAttachment parseAttachment(ByteBuffer buffer) throws ShareschainException.NotValidException;
+    public abstract Attachment.AbstractAttachment parseAttachment(ByteBuffer buffer) throws ShareschainExceptions.NotValidExceptions;
 
-    public abstract Attachment.AbstractAttachment parseAttachment(JSONObject attachmentData) throws ShareschainException.NotValidException;
+    public abstract Attachment.AbstractAttachment parseAttachment(JSONObject attachmentData) throws ShareschainExceptions.NotValidExceptions;
 
-    public abstract void validateAttachment(Transaction transaction) throws ShareschainException.ValidationException;
+    public abstract void validateAttachment(Transaction transaction) throws ShareschainExceptions.ValidationExceptions;
 
     // return false iff double spending
     public abstract boolean applyUnconfirmed(TransactionImpl transaction, Account senderAccount);
@@ -117,6 +117,6 @@ public abstract class TransactionType {
         return getName() + " type: " + getType() + ", subtype: " + getSubtype();
     }
 
-    protected abstract void validateId(Transaction transaction) throws ShareschainException.ValidationException;
+    protected abstract void validateId(Transaction transaction) throws ShareschainExceptions.ValidationExceptions;
 
 }

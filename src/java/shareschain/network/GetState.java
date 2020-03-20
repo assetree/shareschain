@@ -24,7 +24,7 @@ public final class GetState extends APIServlet.APIRequestHandler {
     }
 
     @Override
-    protected JSONStreamAware processRequest(HttpServletRequest req) throws ParameterException {
+    protected JSONStreamAware processRequest(HttpServletRequest req) throws ParameterExceptions {
 
         JSONObject response = GetBlockchainStatus.instance.processRequest(req);
 

@@ -2,10 +2,10 @@
 package shareschain.blockchain;
 
 import shareschain.Constants;
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.account.Account;
-import shareschain.account.AccountLedger;
-import shareschain.account.AccountLedger.LedgerEvent;
+import shareschain.account.AccountChainLedger;
+import shareschain.account.AccountChainLedger.LedgerEvent;
 import shareschain.util.crypto.Crypto;
 import shareschain.util.Convert;
 import shareschain.util.JSON;
@@ -138,7 +138,7 @@ public final class BlockImpl implements Block {
         this.generatorId = generatorId;
     }
 
-    private BlockImpl(byte[] blockBytes, List<? extends SmcTransaction> blockTransactions) throws ShareschainException.NotValidException {
+    private BlockImpl(byte[] blockBytes, List<? extends SmcTransaction> blockTransactions) throws ShareschainExceptions.NotValidExceptions {
         ByteBuffer buffer = ByteBuffer.wrap(blockBytes);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
         version = buffer.getInt();
@@ -159,7 +159,7 @@ public final class BlockImpl implements Block {
             buffer.get(blockSignature);
         }
         if (transactionCount != blockTransactions.size()) {
-            throw new ShareschainException.NotValidException("Block transaction count " + transactionCount + " is incorrect");
+            throw new ShareschainExceptions.NotValidExceptions("Block transaction count " + transactionCount + " is incorrect");
         }
         List<SmcTransactionImpl> list = new ArrayList<>(transactionCount);
         blockTransactions.forEach((transaction) -> list.add((SmcTransactionImpl)transaction));
@@ -348,10 +348,10 @@ public final class BlockImpl implements Block {
         return bytes;
     }
 
-    public static BlockImpl parseBlock(byte[] blockBytes, List<? extends SmcTransaction> blockTransactions) throws ShareschainException.NotValidException {
+    public static BlockImpl parseBlock(byte[] blockBytes, List<? extends SmcTransaction> blockTransactions) throws ShareschainExceptions.NotValidExceptions {
         BlockImpl block = new BlockImpl(blockBytes, blockTransactions);
         if (!block.checkSignature()) {
-            throw new ShareschainException.NotValidException("Invalid block signature");
+            throw new ShareschainExceptions.NotValidExceptions("Invalid block signature");
         }
         return block;
     }
@@ -370,13 +370,13 @@ public final class BlockImpl implements Block {
         return hasValidSignature;
     }
 
-    boolean verifyGenerationSignature() throws BlockchainProcessor.BlockOutOfOrderException {
+    boolean verifyGenerationSignature() throws BlockchainProcessor.BlockOutOfOrderExceptions {
 
         try {
 
             BlockImpl previousBlock = BlockchainImpl.getInstance().getBlock(getPreviousBlockId());
             if (previousBlock == null) {
-                throw new BlockchainProcessor.BlockOutOfOrderException("Can't verify signature because previous block is missing", this);
+                throw new BlockchainProcessor.BlockOutOfOrderExceptions("Can't verify signature because previous block is missing", this);
             }
 
             Account account = Account.getAccount(getGeneratorId());
@@ -413,7 +413,7 @@ public final class BlockImpl implements Block {
     void apply() {
         Account generatorAccount = Account.addOrGetAccount(getGeneratorId());
         generatorAccount.apply(getGeneratorPublicKey());
-        AccountLedger.LedgerEventId eventId = AccountLedger.newEventId(this);
+        AccountChainLedger.LedgerEventId eventId = AccountChainLedger.newEventId(this);
         long totalBackFees = 0;
         if (this.height > 3) {
             long[] backFees = new long[3];

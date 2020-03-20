@@ -2,7 +2,7 @@
 package shareschain.account;
 
 import shareschain.Constants;
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.blockchain.*;
 import shareschain.blockchain.SmcTransactionImpl;
 import org.json.simple.JSONObject;
@@ -41,8 +41,8 @@ public abstract class AccountControlSmcTransactionType extends SmcTransactionTyp
         }
 
         @Override
-        public AccountLedger.LedgerEvent getLedgerEvent() {
-            return AccountLedger.LedgerEvent.ACCOUNT_CONTROL_EFFECTIVE_BALANCE_LEASING;
+        public AccountChainLedger.LedgerEvent getLedgerEvent() {
+            return AccountChainLedger.LedgerEvent.ACCOUNT_CONTROL_EFFECTIVE_BALANCE_LEASING;
         }
 
         @Override
@@ -67,20 +67,20 @@ public abstract class AccountControlSmcTransactionType extends SmcTransactionTyp
         }
 
         @Override
-        protected void validateAttachment(SmcTransactionImpl transaction) throws ShareschainException.ValidationException {
+        protected void validateAttachment(SmcTransactionImpl transaction) throws ShareschainExceptions.ValidationExceptions {
             EffectiveBalanceLeasingAttachment attachment = (EffectiveBalanceLeasingAttachment) transaction.getAttachment();
             if (transaction.getSenderId() == transaction.getRecipientId()) {
-                throw new ShareschainException.NotValidException("Account cannot lease balance to itself");
+                throw new ShareschainExceptions.NotValidExceptions("Account cannot lease balance to itself");
             }
             if (transaction.getAmount() != 0) {
-                throw new ShareschainException.NotValidException("Transaction amount must be 0 for effective balance leasing");
+                throw new ShareschainExceptions.NotValidExceptions("Transaction amount must be 0 for effective balance leasing");
             }
             if (attachment.getPeriod() < Constants.LEASING_DELAY || attachment.getPeriod() > 65535) {
-                throw new ShareschainException.NotValidException("Invalid effective balance leasing period: " + attachment.getPeriod());
+                throw new ShareschainExceptions.NotValidExceptions("Invalid effective balance leasing period: " + attachment.getPeriod());
             }
             byte[] recipientPublicKey = Account.getPublicKey(transaction.getRecipientId());
             if (recipientPublicKey == null) {
-                throw new ShareschainException.NotCurrentlyValidException("Invalid effective balance leasing: "
+                throw new ShareschainExceptions.NotCurrentlyValidExceptions("Invalid effective balance leasing: "
                         + " recipient account " + Long.toUnsignedString(transaction.getRecipientId()) + " not found or no public key published");
             }
         }

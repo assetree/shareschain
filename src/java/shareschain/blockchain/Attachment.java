@@ -1,7 +1,7 @@
 
 package shareschain.blockchain;
 
-import shareschain.ShareschainException;
+import shareschain.ShareschainExceptions;
 import shareschain.account.Account;
 import org.json.simple.JSONObject;
 
@@ -38,12 +38,12 @@ public interface Attachment extends Appendix {
         }
 
         @Override
-        public final void validate(Transaction transaction) throws ShareschainException.ValidationException {
+        public final void validate(Transaction transaction) throws ShareschainExceptions.ValidationExceptions {
             getTransactionType().validateAttachment(transaction);
         }
 
         @Override
-        public final void validateId(Transaction transaction) throws ShareschainException.ValidationException {
+        public final void validateId(Transaction transaction) throws ShareschainExceptions.ValidationExceptions {
             getTransactionType().validateId(transaction);
         }
 

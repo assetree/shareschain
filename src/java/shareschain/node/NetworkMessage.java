@@ -1,7 +1,7 @@
 package shareschain.node;
 
 import shareschain.Shareschain;
-import shareschain.ShareschainException.NotValidException;
+import shareschain.ShareschainExceptions.NotValidExceptions;
 import shareschain.permission.SecurityToken;
 import shareschain.permission.SecurityTokenFactory;
 import shareschain.blockchain.*;
@@ -2241,9 +2241,9 @@ public abstract class NetworkMessage {
          * This method cannot be used if transactions were excluded in the GetBlock message
          *
          * @return                          Block list
-         * @throws  NotValidException       Block is not valid
+         * @throws NotValidExceptions       Block is not valid
          */
-        public List<Block> getBlocks() throws NotValidException {
+        public List<Block> getBlocks() throws NotValidExceptions {
             List<Block> blocks = new ArrayList<>(blockBytes.size());
             for (BlockBytes bytes : blockBytes) {
                 blocks.add(bytes.getBlock());
@@ -2258,9 +2258,9 @@ public abstract class NetworkMessage {
          *
          * @param   excludedTransactions    Transactions that were excluded from the blocks
          * @return                          Block list
-         * @throws  NotValidException       Block is not valid
+         * @throws NotValidExceptions       Block is not valid
          */
-        public Block getBlock(List<Transaction> excludedTransactions) throws NotValidException {
+        public Block getBlock(List<Transaction> excludedTransactions) throws NotValidExceptions {
             if (blockBytes.size() > 1) {
                 throw new IllegalArgumentException("BlocksMessage of more than one block does not support excludedTransactions");
             }
@@ -2671,9 +2671,9 @@ public abstract class NetworkMessage {
          * Get the transactions
          *
          * @return                          Transaction list
-         * @throws  NotValidException       Transaction is not valid
+         * @throws NotValidExceptions       Transaction is not valid
          */
-        public List<Transaction> getTransactions() throws NotValidException {
+        public List<Transaction> getTransactions() throws NotValidExceptions {
             List<Transaction> transactions = new ArrayList<>(transactionBytes.size());
             for (TransactionBytes bytes : transactionBytes) {
                 transactions.add(bytes.getTransaction());
@@ -3323,9 +3323,9 @@ public abstract class NetworkMessage {
          * This method cannot be used if transactions were excluded in the GetBlocks message
          *
          * @return                      Block
-         * @throws  NotValidException   Block is not valid
+         * @throws NotValidExceptions   Block is not valid
          */
-        private Block getBlock() throws NotValidException {
+        private Block getBlock() throws NotValidExceptions {
             /*List<SmcTransaction> smcTransactions = new ArrayList<>(childCounts.length);
             return Shareschain.parseBlock(blockBytes, smcTransactions);*/
 
@@ -3347,9 +3347,9 @@ public abstract class NetworkMessage {
          * This method must be used if transactions were excluded in the GetBlocks message
          *
          * @param   excludedTransactions Excluded transactions
-         * @throws  NotValidException   Block is not valid
+         * @throws NotValidExceptions   Block is not valid
          */
-        private Block getBlock(List<Transaction> excludedTransactions) throws NotValidException {
+        private Block getBlock(List<Transaction> excludedTransactions) throws NotValidExceptions {
             /*if (excludedTransactions.isEmpty()) {
                 return getBlock();
             }
@@ -3451,9 +3451,9 @@ public abstract class NetworkMessage {
          * This method cannot be used if transactions were excluded
          *
          * @return                      Transaction
-         * @throws  NotValidException   Transaction is not valid
+         * @throws NotValidExceptions   Transaction is not valid
          */
-        private Transaction getTransaction() throws NotValidException {
+        private Transaction getTransaction() throws NotValidExceptions {
             if (transactionBytes.length == 0) {
                 throw new IllegalArgumentException("No excluded transactions provided");
             }
@@ -3466,9 +3466,9 @@ public abstract class NetworkMessage {
          * This method must be used if transactions were excluded
          *
          * @param   excluded    Excluded transactions iterator
-         * @throws  NotValidException       Transaction is not valid
+         * @throws NotValidExceptions       Transaction is not valid
          */
-        private Transaction getTransaction(Iterator<Transaction> excluded) throws NotValidException {
+        private Transaction getTransaction(Iterator<Transaction> excluded) throws NotValidExceptions {
             if (transactionBytes.length != 0) {
                 return getTransaction();
             }
