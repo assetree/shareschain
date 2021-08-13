@@ -65,7 +65,7 @@
         </plugins>
     </build>
     <properties>
-        <jdk15on.version>1.59</jdk15on.version>
+        <jdk15on.version>1.67</jdk15on.version>
         <zxing.version>3.3.3</zxing.version>
         <h2.version>1.4.197</h2.version>
         <javax.servlet.version>4.0.1</javax.servlet.version>
