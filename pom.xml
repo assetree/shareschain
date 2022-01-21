@@ -67,7 +67,7 @@
     <properties>
         <jdk15on.version>1.59</jdk15on.version>
         <zxing.version>3.3.3</zxing.version>
-        <h2.version>1.4.197</h2.version>
+        <h2.version>2.1.210</h2.version>
         <javax.servlet.version>4.0.1</javax.servlet.version>
         <jetty.version>9.4.12.v20180830</jetty.version>
         <json.version>1.1.1</json.version>
