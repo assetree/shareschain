@@ -69,7 +69,7 @@
         <zxing.version>3.3.3</zxing.version>
         <h2.version>1.4.197</h2.version>
         <javax.servlet.version>4.0.1</javax.servlet.version>
-        <jetty.version>9.4.12.v20180830</jetty.version>
+        <jetty.version>10.0.10</jetty.version>
         <json.version>1.1.1</json.version>
         <lucene.version>7.5.0</lucene.version>
         <slf4j.version>1.7.25</slf4j.version>
